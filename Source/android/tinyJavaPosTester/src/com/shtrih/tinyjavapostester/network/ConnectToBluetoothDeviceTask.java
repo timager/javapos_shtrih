@@ -24,7 +24,6 @@ public class ConnectToBluetoothDeviceTask extends AsyncTask<Void, Void, String> 
     private final String timeout;
     private final boolean fastConnect;
     private final boolean scocFirmwareAutoupdate;
-    private final ShtrihFiscalPrinter printer;
     private final MainViewModel model;
 
     private long startedAt;
@@ -32,7 +31,7 @@ public class ConnectToBluetoothDeviceTask extends AsyncTask<Void, Void, String> 
 
     private ProgressDialog dialog;
 
-    public ConnectToBluetoothDeviceTask(MainActivity parent, String address, FirmwareUpdateObserver observer, String timeout, boolean fastConnect, boolean scocFirmwareAutoupdate, ShtrihFiscalPrinter printer, MainViewModel model) {
+    public ConnectToBluetoothDeviceTask(MainActivity parent, String address, FirmwareUpdateObserver observer, String timeout, boolean fastConnect, boolean scocFirmwareAutoupdate, MainViewModel model) {
         this.parent = parent;
 
         this.address = address;
@@ -40,7 +39,6 @@ public class ConnectToBluetoothDeviceTask extends AsyncTask<Void, Void, String> 
         this.timeout = timeout;
         this.fastConnect = fastConnect;
         this.scocFirmwareAutoupdate = scocFirmwareAutoupdate;
-        this.printer = printer;
         this.model = model;
     }
 
@@ -55,8 +53,8 @@ public class ConnectToBluetoothDeviceTask extends AsyncTask<Void, Void, String> 
     protected String doInBackground(Void... params) {
 
         startedAt = System.currentTimeMillis();
-
         try {
+            ShtrihFiscalPrinter printer = model.getPrinter();
             HashMap<String, String> props = new HashMap<>();
             props.put("portName", address);
             props.put("portType", "3");
