@@ -1,13 +1,11 @@
-package com.shtrih.tinyjavapostester;
+package com.shtrih.tinyjavapostester.activity;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatCheckBox;
@@ -15,24 +13,19 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CompoundButton;
-import android.widget.EditText;
 import android.widget.Toast;
 
-import com.shtrih.fiscalprinter.FontNumber;
-import com.shtrih.fiscalprinter.ShtrihFiscalPrinter;
-import com.shtrih.fiscalprinter.command.BeginNonFiscalDocument;
-import com.shtrih.fiscalprinter.command.CloseNonFiscal;
-import com.shtrih.fiscalprinter.command.DeviceMetrics;
-import com.shtrih.fiscalprinter.command.FSReadExpDate;
 import com.shtrih.jpos.fiscalprinter.FirmwareUpdateObserver;
-import com.shtrih.tinyjavapostester.cashboxtasks.PrintReceiptTask;
-import com.shtrih.tinyjavapostester.cashboxtasks.PrintXReportTaskKKM;
+import com.shtrih.tinyjavapostester.FirmwareUpdaterObserverImpl;
+import com.shtrih.tinyjavapostester.MainViewModel;
+import com.shtrih.tinyjavapostester.R;
+import com.shtrih.tinyjavapostester.task.OpenDayTask;
+import com.shtrih.tinyjavapostester.task.PrintDuplicateReceiptTask;
+import com.shtrih.tinyjavapostester.task.PrintReceiptTask;
+import com.shtrih.tinyjavapostester.task.PrintXReportTaskKKM;
+import com.shtrih.tinyjavapostester.task.PrintZReportTaskKKM;
 import com.shtrih.tinyjavapostester.databinding.ActivityMainBinding;
-import com.shtrih.tinyjavapostester.network.ConnectToBluetoothDeviceTask;
-import com.shtrih.tinyjavapostester.search.bluetooth.DeviceListActivity;
-import com.shtrih.tinyjavapostester.search.tcp.TcpDeviceSearchActivity;
-
-import jpos.JposException;
+import com.shtrih.tinyjavapostester.task.ConnectToBluetoothDeviceTask;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -44,7 +37,6 @@ public class MainActivity extends AppCompatActivity {
     private AppCompatCheckBox chbScocFirmwareUpdate;
 
     private MainViewModel model;
-    private EditText nbTextLinesCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +46,6 @@ public class MainActivity extends AppCompatActivity {
         binding.setVm(model);
         binding.setActivity(this);
         final SharedPreferences pref = this.getSharedPreferences("MainActivity", Context.MODE_PRIVATE);
-        nbTextLinesCount = findViewById(R.id.nbTextLinesCount);
         chbFastConnect = findViewById(R.id.chbFastConnect);
         restoreAndSaveChangesTo(chbFastConnect, pref, "FastConnect", true);
         chbScocFirmwareUpdate = findViewById(R.id.chbScocFirmwareUpdate);
@@ -103,21 +94,6 @@ public class MainActivity extends AppCompatActivity {
                             chbScocFirmwareUpdate.isChecked(),
                             model).execute();
                 }
-            case TcpDeviceSearchActivity.REQUEST_SEARCH_TCP_DEVICE:
-                if (resultCode == Activity.RESULT_OK) {
-
-                    Bundle extras = data.getExtras();
-
-                    if (extras == null)
-                        return;
-
-                    String address = extras.getString("Address");
-
-                    if (address == null)
-                        return;
-
-                }
-                break;
             default:
                 super.onActivityResult(requestCode, resultCode, data);
         }
@@ -151,93 +127,24 @@ public class MainActivity extends AppCompatActivity {
         new PrintXReportTaskKKM(this, model).execute();
     }
 
-    public void test(View view) {
+    public void printZReport(View v) {
+        new PrintZReportTaskKKM(this, model).execute();
+    }
+
+
+    public void printReceipt(View view) {
         new PrintReceiptTask(this, 5, 5, model).execute();
 
-//        new TestTask(this).execute();
     }
 
-
-    public void printText(View v) {
-        String lines = nbTextLinesCount.getText().toString();
-        new PrintTextTask(this, lines).execute();
+    public void printReceiptCopy(View view) {
+        new PrintDuplicateReceiptTask(this, model).execute();
     }
 
-
-    private class PrintTextTask extends AsyncTask<Void, Void, String> {
-
-        private final Activity parent;
-        private final String lines;
-
-        private long startedAt;
-        private long doneAt;
-        private ProgressDialog dialog;
-
-        public PrintTextTask(Activity parent, String lines) {
-            this.parent = parent;
-            this.lines = lines;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-            dialog = ProgressDialog.show(parent, "Printing text", "Please wait...", true);
-        }
-
-        @Override
-        protected String doInBackground(Void... params) {
-
-
-            try {
-                ShtrihFiscalPrinter printer = model.getPrinter();
-                printer.resetPrinter();
-
-                boolean isCashCore = isCashCore(printer);
-
-                startedAt = System.currentTimeMillis();
-
-                if (isCashCore) {
-                    BeginNonFiscalDocument cmd = new BeginNonFiscalDocument();
-                    cmd.setPassword(printer.getUsrPassword());
-                    printer.executeCommand(cmd);
-                }
-                FontNumber font = new FontNumber(1);
-                printer.printText(lines, font);
-
-                if (isCashCore) {
-                    CloseNonFiscal cmd = new CloseNonFiscal();
-                    cmd.setPassword(printer.getUsrPassword());
-                    printer.executeCommand(cmd);
-                }
-
-                return null;
-
-            } catch (Exception e) {
-                showMessage("Text printing failed");
-                return e.getMessage();
-            } finally {
-                doneAt = System.currentTimeMillis();
-            }
-        }
-
-        private boolean isCashCore(ShtrihFiscalPrinter printer) throws JposException {
-            DeviceMetrics metrics = printer.readDeviceMetrics();
-            return metrics.getModel() == 45; // КЯ
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-
-            dialog.dismiss();
-
-            if (result == null)
-                showMessage("Success " + (doneAt - startedAt) + " ms");
-            else
-                showMessage(result);
-        }
+    public void openDay(View view) {
+        new OpenDayTask(this, model).execute();
     }
+
 
     public void showMessage(final String message) {
         runOnUiThread(new Runnable() {

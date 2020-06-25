@@ -1,4 +1,4 @@
-package com.shtrih.tinyjavapostester.network;
+package com.shtrih.tinyjavapostester.task;
 
 import android.app.ProgressDialog;
 import android.content.pm.ActivityInfo;
@@ -8,13 +8,13 @@ import com.shtrih.fiscalprinter.ShtrihFiscalPrinter;
 import com.shtrih.jpos.fiscalprinter.FirmwareUpdateObserver;
 import com.shtrih.jpos.fiscalprinter.SmFptrConst;
 import com.shtrih.tinyjavapostester.JposConfig;
-import com.shtrih.tinyjavapostester.MainActivity;
+import com.shtrih.tinyjavapostester.activity.MainActivity;
 import com.shtrih.tinyjavapostester.MainViewModel;
 
 import java.util.HashMap;
 import jpos.JposConst;
 
-import static com.shtrih.tinyjavapostester.MainActivity.PROTOCOL;
+import static com.shtrih.tinyjavapostester.activity.MainActivity.PROTOCOL;
 
 public class ConnectToBluetoothDeviceTask extends AsyncTask<Void, Void, String> {
 

@@ -10,7 +10,7 @@
 
         <variable
             name="activity"
-            type="com.shtrih.tinyjavapostester.MainActivity" />
+            type="com.shtrih.tinyjavapostester.activity.MainActivity" />
     </data>
 
     <ScrollView
@@ -18,7 +18,7 @@
         android:layout_height="match_parent"
         android:configChanges="keyboardHidden|orientation|screenSize"
         android:screenOrientation="portrait"
-        tools:context="com.shtrih.tinyjavapostester.MainActivity">
+        tools:context="com.shtrih.tinyjavapostester.activity.MainActivity">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -90,18 +90,39 @@
                 android:text="@string/action_print_text" />
 
             <Button
-                android:id="@+id/bthTest"
+                android:id="@+id/btnOpenDay"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:onClick="test"
-                android:text="test" />
+                android:onClick="openDay"
+                android:text="Открыть смену" />
+
+            <Button
+                android:id="@+id/btnPrintReceipt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="printReceipt"
+                android:text="напечатать чек" />
+
+            <Button
+                android:id="@+id/btnPrintCopy"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="printReceiptCopy"
+                android:text="напечатать копию последнего чека" />
 
             <Button
                 android:id="@+id/bthXReport"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:onClick="printXReport"
-                android:text="bthXReport" />
+                android:text="X-Report" />
+
+            <Button
+                android:id="@+id/bthZReport"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="printZReport"
+                android:text="Z-Report" />
 
         </LinearLayout>
 

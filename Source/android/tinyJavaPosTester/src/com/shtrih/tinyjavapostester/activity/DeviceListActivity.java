@@ -1,4 +1,4 @@
-package com.shtrih.tinyjavapostester.search.bluetooth;
+package com.shtrih.tinyjavapostester.activity;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
