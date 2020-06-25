@@ -1,6 +1,7 @@
 package com.shtrih.tinyjavapostester.task;
 
 import android.app.ProgressDialog;
+import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 
 import com.shtrih.fiscalprinter.ShtrihFiscalPrinter;
@@ -29,6 +30,7 @@ public abstract class AbstractTask extends AsyncTask<Void, Void, String> {
     protected void onPreExecute() {
         super.onPreExecute();
         Message message = makeMessage();
+        parent.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
         dialog = ProgressDialog.show(parent, message.getTitle(), message.getText(), true);
     }
 
@@ -58,6 +60,7 @@ public abstract class AbstractTask extends AsyncTask<Void, Void, String> {
             parent.showMessage("Success " + (doneAt - startedAt) + " ms");
         else
             parent.showMessage(result);
+        parent.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
     }
 
 

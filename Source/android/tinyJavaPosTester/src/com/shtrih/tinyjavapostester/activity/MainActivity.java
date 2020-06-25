@@ -133,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void printReceipt(View view) {
-        new PrintReceiptTask(this, 5, 5, model).execute();
+        new PrintReceiptTask(this, model).execute();
 
     }
 

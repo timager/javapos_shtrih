@@ -1,13 +1,13 @@
 package com.shtrih.tinyjavapostester.task;
 
 import com.shtrih.fiscalprinter.ShtrihFiscalPrinter;
+import com.shtrih.fiscalprinter.command.TextDocumentFilter;
 import com.shtrih.jpos.fiscalprinter.SmFptrConst;
 import com.shtrih.tinyjavapostester.MainViewModel;
 import com.shtrih.tinyjavapostester.activity.MainActivity;
 import com.shtrih.tinyjavapostester.task.message.Message;
 
 import jpos.FiscalPrinterConst;
-import jpos.JposException;
 
 public class PrintReceiptTask extends AbstractTask {
 
@@ -25,7 +25,7 @@ public class PrintReceiptTask extends AbstractTask {
         printer.beginFiscalReceipt(true);
 
 
-        //writePaymentTags(receipt.getTags());
+//        writePaymentTags(receipt.getTags());
         //Развернул сожержимое метода, чтобы было понятно, какие теги передаём
         printer.fsWriteTag(1016, "2225031594  ");
         printer.fsWriteTag(1073, "+78001000000");
