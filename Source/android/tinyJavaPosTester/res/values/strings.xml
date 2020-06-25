@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">shtrihAdapter</string>
+    <string name="app_name">Шлюз для кассы</string>
     <string name="action_connect_ptk">Connect bluetooth device</string>
     <string name="action_auto_connect_bluetooth">Auto connect bluetooth device</string>
     <string name="action_share_log">Share log</string>
