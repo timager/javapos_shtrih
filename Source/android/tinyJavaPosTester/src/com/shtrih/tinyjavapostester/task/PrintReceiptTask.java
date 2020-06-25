@@ -24,7 +24,6 @@ public class PrintReceiptTask extends AbstractTask {
 
         printer.beginFiscalReceipt(true);
 
-
 //        writePaymentTags(receipt.getTags());
         //Развернул сожержимое метода, чтобы было понятно, какие теги передаём
         printer.fsWriteTag(1016, "2225031594  ");
