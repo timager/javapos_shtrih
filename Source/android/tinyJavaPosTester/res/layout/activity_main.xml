@@ -88,12 +88,20 @@
                 android:layout_height="wrap_content"
                 android:onClick="printText"
                 android:text="@string/action_print_text" />
+
             <Button
                 android:id="@+id/bthTest"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:onClick="test"
                 android:text="test" />
+
+            <Button
+                android:id="@+id/bthXReport"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="printXReport"
+                android:text="bthXReport" />
 
         </LinearLayout>
 

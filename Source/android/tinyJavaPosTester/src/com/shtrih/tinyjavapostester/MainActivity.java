@@ -25,6 +25,8 @@ import com.shtrih.fiscalprinter.command.CloseNonFiscal;
 import com.shtrih.fiscalprinter.command.DeviceMetrics;
 import com.shtrih.fiscalprinter.command.FSReadExpDate;
 import com.shtrih.jpos.fiscalprinter.FirmwareUpdateObserver;
+import com.shtrih.tinyjavapostester.cashboxtasks.PrintReceiptTask;
+import com.shtrih.tinyjavapostester.cashboxtasks.PrintXReportTaskKKM;
 import com.shtrih.tinyjavapostester.databinding.ActivityMainBinding;
 import com.shtrih.tinyjavapostester.network.ConnectToBluetoothDeviceTask;
 import com.shtrih.tinyjavapostester.search.bluetooth.DeviceListActivity;
@@ -145,62 +147,16 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    public void printXReport(View v) {
+        new PrintXReportTaskKKM(this, model).execute();
+    }
+
     public void test(View view) {
-        new TestTask(this).execute();
+        new PrintReceiptTask(this, 5, 5, model).execute();
+
+//        new TestTask(this).execute();
     }
 
-    private class TestTask extends AsyncTask<Void, Void, String> {
-
-        private final Activity parent;
-        private long startedAt;
-        private long doneAt;
-        private ProgressDialog dialog;
-
-        public TestTask(Activity parent) {
-            this.parent = parent;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-            dialog = ProgressDialog.show(parent, "test", "Please wait...", true);
-        }
-
-        @Override
-        protected String doInBackground(Void... params) {
-
-
-            try {
-                ShtrihFiscalPrinter printer = model.getPrinter();
-                printer.resetPrinter();
-                startedAt = System.currentTimeMillis();
-                FSReadExpDate fsCmd = new FSReadExpDate();
-                fsCmd.setSysPassword(printer.getUsrPassword());
-                printer.executeCommand(fsCmd);
-                showMessage(fsCmd.getDate().toString());
-                return null;
-
-            } catch (Exception e) {
-                showMessage("Text printing failed");
-                return e.getMessage();
-            } finally {
-                doneAt = System.currentTimeMillis();
-            }
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-
-            dialog.dismiss();
-
-            if (result == null)
-                showMessage("Success " + (doneAt - startedAt) + " ms");
-            else
-                showMessage(result);
-        }
-    }
 
     public void printText(View v) {
         String lines = nbTextLinesCount.getText().toString();
