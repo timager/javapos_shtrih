@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 
 import com.shtrih.fiscalprinter.ShtrihFiscalPrinter;
 import com.shtrih.tinyjavapostester.MainViewModel;
+import com.shtrih.tinyjavapostester.activity.AbstractActivity;
 import com.shtrih.tinyjavapostester.activity.MainActivity;
 import com.shtrih.tinyjavapostester.task.message.Message;
 
@@ -13,7 +14,7 @@ import jpos.JposException;
 
 public abstract class AbstractTask extends AsyncTask<Void, Void, String> {
 
-    private final MainActivity parent;
+    protected final AbstractActivity parent;
 
     private long startedAt;
     private long doneAt;
@@ -21,7 +22,7 @@ public abstract class AbstractTask extends AsyncTask<Void, Void, String> {
 
     private final MainViewModel model;
 
-    public AbstractTask(MainActivity parent, MainViewModel model) {
+    public AbstractTask(AbstractActivity parent, MainViewModel model) {
         this.parent = parent;
         this.model = model;
     }
@@ -29,9 +30,14 @@ public abstract class AbstractTask extends AsyncTask<Void, Void, String> {
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        Message message = makeMessage();
+        final Message message = makeMessage();
         parent.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
-        dialog = ProgressDialog.show(parent, message.getTitle(), message.getText(), true);
+        parent.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                dialog = ProgressDialog.show(parent, message.getTitle(), message.getText(), true);
+            }
+        });
     }
 
     abstract Message makeMessage();
@@ -53,16 +59,22 @@ public abstract class AbstractTask extends AsyncTask<Void, Void, String> {
     @Override
     protected void onPostExecute(String result) {
         super.onPostExecute(result);
-
-        dialog.dismiss();
+        parent.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                dialog.dismiss();
+            }
+        });
 
         if (result == null)
             parent.showMessage("Success " + (doneAt - startedAt) + " ms");
         else
             parent.showMessage(result);
         parent.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+        postExec();
     }
 
 
     protected abstract void exec(ShtrihFiscalPrinter printer) throws Exception;
+    protected abstract void postExec();
 }
