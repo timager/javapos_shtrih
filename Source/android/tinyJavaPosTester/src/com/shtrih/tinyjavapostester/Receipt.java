@@ -1,6 +1,11 @@
 package com.shtrih.tinyjavapostester;
 
 import com.shtrih.fiscalprinter.ShtrihFiscalPrinter;
+import com.shtrih.fiscalprinter.SmFiscalPrinterException;
+import com.shtrih.fiscalprinter.command.FSDocType;
+import com.shtrih.fiscalprinter.command.FSStatusInfo;
+import com.shtrih.fiscalprinter.command.LongPrinterStatus;
+import com.shtrih.jpos.fiscalprinter.JposExceptionHandler;
 import com.shtrih.jpos.fiscalprinter.SmFptrConst;
 import com.shtrih.tinyjavapostester.network.OrderResponse;
 
@@ -19,34 +24,51 @@ public class Receipt {
     }
 
     public void print(ShtrihFiscalPrinter printer) throws Exception {
-        printer.setFiscalReceiptType(FiscalPrinterConst.FPTR_S_RECEIPT);
+        prepare(printer);
+        final int fiscalReceiptType = FiscalPrinterConst.FPTR_RT_SALES;
+
+        printer.setFiscalReceiptType(fiscalReceiptType);
+
         printer.beginFiscalReceipt(true);
 
-        printer.fsWriteTag(1031, deepLinkData.getJSONObject("operation_data").getString("payment_cash"));
-        printer.fsWriteTag(1081, deepLinkData.getJSONObject("operation_data").getString("payment_card"));
-
-//        printer.fsWriteTag(1073, "+78001000000");
-//        printer.fsWriteTag(1005, "НОВОСИБИРСК,КИРОВА,86");
-//        printer.fsWriteTag(1075, "+73833358088");
-//        printer.fsWriteTag(1171, "+73833399242");
-//        printer.fsWriteTag(1044, "Прием денежных средств");
-//        printer.fsWriteTag(1026, "РНКО \"ПЛАТЕЖНЫЙ ЦЕНТР\"");
-
-        printer.printNormal(FiscalPrinterConst.FPTR_S_RECEIPT, "receipt.getReceipt()");
+        printer.fsWriteTag(1021, deepLinkData.getString("username"));
 
         final String unitName = "Оплата";
 
-        printer.setParameter(SmFptrConst.SMFPTR_DIO_PARAM_ITEM_PAYMENT_TYPE, 4);
-        printer.setParameter(SmFptrConst.SMFPTR_DIO_PARAM_ITEM_SUBJECT_TYPE, 4);
 
-        printer.printRecItem("Приём платежа", 12300, 0, 0, 0, unitName);
+        for (OrderResponse.Serv serv : order.getServs()) {
+            long price = Long.parseLong(serv.getServCost().replace(".", "")) / 100;
+            printer.printRecItem(serv.getServCode() + " " + serv.getServName(), price, 0, 0, 0, unitName);
+        }
 
-        printer.setParameter(SmFptrConst.SMFPTR_DIO_PARAM_ITEM_PAYMENT_TYPE, 4);
-        printer.setParameter(SmFptrConst.SMFPTR_DIO_PARAM_ITEM_SUBJECT_TYPE, 4);
+        JSONObject operationData = deepLinkData.getJSONObject("operation_data");
+        long paymentCash = operationData.getInt("payment_cash") * 100;
+        if (paymentCash != 0) {
+            printer.printRecTotal(paymentCash, paymentCash, "0");
+        }
+        long paymentCard = operationData.getInt("payment_card") * 100;
+        if (paymentCard != 0) {
+            printer.printRecTotal(paymentCard, paymentCard, "");
+        }
+        printer.endFiscalReceipt(true);
+    }
 
-        printer.printRecItem("Размер вознаграждения", 123, 0, 3, 0, unitName);
+    private void prepare(ShtrihFiscalPrinter printer) throws JposException {
+        LongPrinterStatus status = printer.readLongPrinterStatus();
 
-        printer.printRecTotal(12423, 12423, "0");
-        printer.endFiscalReceipt(false);
+        // проверяем наличие бумаги
+        if (status.getSubmode() == 1 || status.getSubmode() == 2) {
+            final int errorCodeNoPaper = 107;
+            throw JposExceptionHandler.getJposException(
+                    new SmFiscalPrinterException(errorCodeNoPaper, "Отсутствует бумага"));
+        }
+
+        // проверяем, есть ли открытый документ в ФН
+        FSStatusInfo fsStatus = printer.fsReadStatus();
+
+        if (fsStatus.getDocType().getValue() != FSDocType.FS_DOCTYPE_NONE)
+            printer.fsCancelDocument(); // если есть отменяем
+
+        printer.resetPrinter();
     }
 }

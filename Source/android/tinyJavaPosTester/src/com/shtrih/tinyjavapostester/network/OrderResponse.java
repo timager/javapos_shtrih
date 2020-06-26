@@ -338,7 +338,7 @@ public class OrderResponse implements Serializable {
 
     }
 
-    private class Serv implements Serializable {
+    public class Serv implements Serializable {
 
         @SerializedName("serv_id")
         @Expose
