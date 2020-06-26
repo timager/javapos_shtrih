@@ -48,7 +48,7 @@ public class PayActivity extends AppCompatActivity {
         return new JSONObject(json);
     }
 
-    private void getOrderDataFromCmdAPI(JSONObject deepLinkData) {
+    private void getOrderDataFromCmdAPI(final JSONObject deepLinkData) {
         try {
             NetworkService.getInstance().getApi().getOrder(new OrderBody(deepLinkData)).enqueue(new Callback<OrderResponse>() {
                 @Override
@@ -56,7 +56,7 @@ public class PayActivity extends AppCompatActivity {
                     int responseCode = response.code();
                     if (responseCode == 200) {
                         if ((response.body() != null)) {
-                            sendDataToMainActivity(response.body());
+                            sendDataToMainActivity(response.body(), deepLinkData);
                         } else {
                             showMessage("Ответ на запрос не содержит данных");
                         }
@@ -75,9 +75,10 @@ public class PayActivity extends AppCompatActivity {
         }
     }
 
-    private void sendDataToMainActivity(OrderResponse data) {
+    private void sendDataToMainActivity(OrderResponse data, JSONObject deepLinkData) {
         Intent intent = new Intent(PayActivity.this, MainActivity.class);
         intent.putExtra(MainActivity.ORDER_RESPONSE, data);
+        intent.putExtra(MainActivity.DEEP_LINK_DATA, deepLinkData.toString());
         startActivity(intent);
     }
 

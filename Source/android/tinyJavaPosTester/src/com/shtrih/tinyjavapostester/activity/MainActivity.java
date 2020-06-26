@@ -18,12 +18,16 @@ import com.shtrih.tinyjavapostester.task.PrintReceiptTask;
 import com.shtrih.tinyjavapostester.task.PrintXReportTaskKKM;
 import com.shtrih.tinyjavapostester.task.PrintZReportTaskKKM;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 
 public class MainActivity extends AbstractActivity {
 
     public static final String PROTOCOL = "0";
     public static final String TIMEOUT = "3000";
     public static final String ORDER_RESPONSE = "order_response";
+    public static final String DEEP_LINK_DATA = "deep_link_data";
 
     private TextView infoView;
     private Button btnOpenDay;
@@ -33,6 +37,7 @@ public class MainActivity extends AbstractActivity {
     private Button bthZReport;
 
     private OrderResponse response = null;
+    private JSONObject deepLinkData = null;
 
     @Override
     protected int chooseLayout() {
@@ -50,6 +55,11 @@ public class MainActivity extends AbstractActivity {
         bthZReport = findViewById(R.id.bthZReport);
         Intent intent = getIntent();
         response = (OrderResponse) intent.getSerializableExtra(ORDER_RESPONSE);
+        try {
+            deepLinkData = new JSONObject(intent.getStringExtra(DEEP_LINK_DATA));
+        } catch (JSONException e) {
+            showMessage(e.getMessage());
+        }
         showMessage(String.valueOf(response));
         enableBluetooth();
         toConnect();
@@ -82,7 +92,7 @@ public class MainActivity extends AbstractActivity {
 
 
     public void printReceipt(View view) {
-        Receipt receipt = new Receipt(response.getOrder());
+        Receipt receipt = new Receipt(response.getOrder(), deepLinkData);
         new PrintReceiptTask(this, model, receipt).execute();
 
     }
@@ -98,18 +108,18 @@ public class MainActivity extends AbstractActivity {
 
     @Override
     protected void onDayOpened(boolean isOpen) {
-        if(isOpen){
+        if (isOpen) {
             infoView.setText("Смена открыта, касса готова к работе");
             btnOpenDay.setEnabled(false);
-            if(response != null)
+            if (response != null)
                 btnPrintReceipt.setEnabled(true);
             btnPrintCopy.setEnabled(true);
             bthXReport.setEnabled(true);
             bthZReport.setEnabled(true);
-        }else{
+        } else {
             infoView.setText("Необходимо открыть смену");
             btnOpenDay.setEnabled(true);
-            if(response != null)
+            if (response != null)
                 btnPrintReceipt.setEnabled(false);
             btnPrintCopy.setEnabled(false);
             bthXReport.setEnabled(false);

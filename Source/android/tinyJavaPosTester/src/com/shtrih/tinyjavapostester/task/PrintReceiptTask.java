@@ -10,6 +10,7 @@ import com.shtrih.tinyjavapostester.activity.MainActivity;
 import com.shtrih.tinyjavapostester.task.message.Message;
 
 import jpos.FiscalPrinterConst;
+import jpos.JposException;
 
 public class PrintReceiptTask extends AbstractTask {
 
@@ -21,43 +22,43 @@ public class PrintReceiptTask extends AbstractTask {
         this.receipt = receipt;
     }
 
-    private void printSalesReceipt(ShtrihFiscalPrinter printer) throws Exception {
-
-        final int fiscalReceiptType = FiscalPrinterConst.FPTR_RT_SALES;
-
-        printer.setFiscalReceiptType(fiscalReceiptType);
-
-        printer.beginFiscalReceipt(true);
-
-//        writePaymentTags(receipt.getTags());
-        //Развернул сожержимое метода, чтобы было понятно, какие теги передаём
-        printer.fsWriteTag(1016, "2225031594  ");
-        printer.fsWriteTag(1073, "+78001000000");
-        //printer.fsWriteTag(1057, "1");
-        printer.fsWriteTag(1005, "НОВОСИБИРСК,КИРОВА,86");
-        printer.fsWriteTag(1075, "+73833358088");
-        printer.fsWriteTag(1171, "+73833399242");
-        printer.fsWriteTag(1044, "Прием денежных средств");
-        printer.fsWriteTag(1026, "РНКО \"ПЛАТЕЖНЫЙ ЦЕНТР\"");
-
-        //receipt.getReceipt() - текст чека типа String
-        printer.printNormal(FiscalPrinterConst.FPTR_S_RECEIPT, "receipt.getReceipt()");
-
-        final String unitName = "Оплата";
-
-        printer.setParameter(SmFptrConst.SMFPTR_DIO_PARAM_ITEM_PAYMENT_TYPE, 4);
-        printer.setParameter(SmFptrConst.SMFPTR_DIO_PARAM_ITEM_SUBJECT_TYPE, 4);
-
-        printer.printRecItem("Приём платежа", 12300, 0, 0, 0, unitName);
-
-        printer.setParameter(SmFptrConst.SMFPTR_DIO_PARAM_ITEM_PAYMENT_TYPE, 4);
-        printer.setParameter(SmFptrConst.SMFPTR_DIO_PARAM_ITEM_SUBJECT_TYPE, 4);
-
-        printer.printRecItem("Размер вознаграждения", 123, 0, 3, 0, unitName);
-
-        printer.printRecTotal(12423, 12423, "0");
-        printer.endFiscalReceipt(false);
-    }
+//    private void printSalesReceipt(ShtrihFiscalPrinter printer) throws Exception {
+//
+//        final int fiscalReceiptType = FiscalPrinterConst.FPTR_RT_SALES;
+//
+//        printer.setFiscalReceiptType(fiscalReceiptType);
+//
+//        printer.beginFiscalReceipt(true);
+//
+////        writePaymentTags(receipt.getTags());
+//        //Развернул сожержимое метода, чтобы было понятно, какие теги передаём
+//        printer.fsWriteTag(1016, "2225031594  ");
+//        printer.fsWriteTag(1073, "+78001000000");
+//        //printer.fsWriteTag(1057, "1");
+//        printer.fsWriteTag(1005, "НОВОСИБИРСК,КИРОВА,86");
+//        printer.fsWriteTag(1075, "+73833358088");
+//        printer.fsWriteTag(1171, "+73833399242");
+//        printer.fsWriteTag(1044, "Прием денежных средств");
+//        printer.fsWriteTag(1026, "РНКО \"ПЛАТЕЖНЫЙ ЦЕНТР\"");
+//
+//        //receipt.getReceipt() - текст чека типа String
+//        printer.printNormal(FiscalPrinterConst.FPTR_S_RECEIPT, "receipt.getReceipt()");
+//
+//        final String unitName = "Оплата";
+//
+//        printer.setParameter(SmFptrConst.SMFPTR_DIO_PARAM_ITEM_PAYMENT_TYPE, 4);
+//        printer.setParameter(SmFptrConst.SMFPTR_DIO_PARAM_ITEM_SUBJECT_TYPE, 4);
+//
+//        printer.printRecItem("Приём платежа", 12300, 0, 0, 0, unitName);
+//
+//        printer.setParameter(SmFptrConst.SMFPTR_DIO_PARAM_ITEM_PAYMENT_TYPE, 4);
+//        printer.setParameter(SmFptrConst.SMFPTR_DIO_PARAM_ITEM_SUBJECT_TYPE, 4);
+//
+//        printer.printRecItem("Размер вознаграждения", 123, 0, 3, 0, unitName);
+//
+//        printer.printRecTotal(12423, 12423, "0");
+//        printer.endFiscalReceipt(false);
+//    }
 
 //    private void printReceipt2(ShtrihFiscalPrinter printer) throws JposException, InterruptedException {
 //        printer.resetPrinter();
@@ -88,7 +89,7 @@ public class PrintReceiptTask extends AbstractTask {
 
     @Override
     protected void exec(ShtrihFiscalPrinter printer) throws Exception {
-//        printSalesReceipt(printer);
+//        printReceipt2(printer);
         receipt.print(printer);
     }
 
