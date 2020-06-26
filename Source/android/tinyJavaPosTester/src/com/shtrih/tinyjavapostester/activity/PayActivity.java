@@ -16,6 +16,8 @@ import com.shtrih.tinyjavapostester.network.OrderResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -51,23 +53,32 @@ public class PayActivity extends AppCompatActivity {
             NetworkService.getInstance().getApi().getOrder(new OrderBody(deepLinkData)).enqueue(new Callback<OrderResponse>() {
                 @Override
                 public void onResponse(Call<OrderResponse> call, Response<OrderResponse> response) {
-                    if (response.body() != null) {
-                        showMessage(response.body().getOrder().getPatientEmail());
-                    }
-                    else {
-                        showMessage("произошел жиж");
+                    int responseCode = response.code();
+                    if (responseCode == 200) {
+                        if ((response.body() == null)) {
+                            sendDataToMainActivity(response.body());
+                        } else {
+                            showMessage("Ответ на запрос не содержит данных");
+                        }
+                    } else {
+                        showMessage("Неверный ответ на запрос (" + responseCode + ")");
                     }
                 }
 
                 @Override
                 public void onFailure(Call<OrderResponse> call, Throwable t) {
-                    showMessage(t.getMessage());
-                    t.printStackTrace();
+                    showMessage("Произошла ошибка при запросе (" + t.getLocalizedMessage() + ")");
                 }
             });
         } catch (JSONException e) {
-            showMessage(e.getMessage());
+            showMessage("Ошибка формата ссылки, не удалось декодировать JSON");
         }
+    }
+
+    private void sendDataToMainActivity(OrderResponse data) {
+        Intent intent = new Intent(PayActivity.this, MainActivity.class);
+        intent.putExtra(MainActivity.ORDER_RESPONSE, data);
+        startActivity(intent);
     }
 
     public void showMessage(final String message) {

@@ -3,9 +3,10 @@ package com.shtrih.tinyjavapostester.network;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class OrderResponse {
+public class OrderResponse implements Serializable {
 
     @SerializedName("header")
     @Expose

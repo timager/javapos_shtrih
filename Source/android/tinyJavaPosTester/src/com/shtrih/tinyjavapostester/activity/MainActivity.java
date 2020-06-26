@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String PROTOCOL = "0";
     public static final String TIMEOUT = "3000";
+    public static final String ORDER_RESPONSE = "order_response";
 
     private AppCompatCheckBox chbFastConnect;
     private AppCompatCheckBox chbScocFirmwareUpdate;
@@ -103,7 +104,6 @@ public class MainActivity extends AppCompatActivity {
     private FirmwareUpdateObserver createFirmwareUpdateObserver() {
         return new FirmwareUpdaterObserverImpl(model);
     }
-
 
 
     @Override
