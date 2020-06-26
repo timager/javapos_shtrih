@@ -10,7 +10,7 @@
 
         <variable
             name="activity"
-            type="com.shtrih.tinyjavapostester.activity.MainActivity" />
+            type="com.shtrih.tinyjavapostester.activity.AbstractActivity" />
     </data>
 
     <ScrollView
@@ -29,67 +29,18 @@
             android:paddingRight="@dimen/activity_horizontal_margin"
             android:paddingBottom="@dimen/activity_vertical_margin">
 
-            <!-- Dummy item to prevent AutoCompleteTextView from receiving focus -->
-            <LinearLayout
-                android:layout_width="0px"
-                android:layout_height="0px"
-                android:focusable="true"
-                android:focusableInTouchMode="true" />
 
-            <TableLayout
+
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:stretchColumns="1">
-
-
-                <TableRow>
-
-                    <android.support.v7.widget.AppCompatCheckBox
-                        android:id="@+id/chbFastConnect"
-                        android:layout_span="2"
-                        android:text="@string/chbFastConnect" />
-
-                </TableRow>
-
-                <TableRow>
-
-                    <android.support.v7.widget.AppCompatCheckBox
-                        android:id="@+id/chbScocFirmwareUpdate"
-                        android:layout_span="2"
-                        android:text="@string/chbScocFirmwareUpdate" />
-
-                </TableRow>
-            </TableLayout>
-
-
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="5dip"
-                    android:layout_marginRight="5dip"
-                    android:text="@string/lblTextStrings" />
-
-                <EditText
-                    android:id="@+id/nbTextLinesCount"
-                    android:layout_width="match_parent"
-                    android:layout_height="300dp"
-                    android:inputType="text|textMultiLine"/>
-            </LinearLayout>
+                android:layout_marginEnd="5dip"
+                android:layout_marginRight="5dip"
+                android:id="@+id/info"
+                android:text="Загрузка" />
 
             <Button
-                android:id="@+id/btnPrintText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:onClick="printText"
-                android:text="@string/action_print_text" />
-
-            <Button
+                android:enabled="false"
                 android:id="@+id/btnOpenDay"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -97,6 +48,7 @@
                 android:text="Открыть смену" />
 
             <Button
+                android:enabled="false"
                 android:id="@+id/btnPrintReceipt"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -104,6 +56,7 @@
                 android:text="напечатать чек" />
 
             <Button
+                android:enabled="false"
                 android:id="@+id/btnPrintCopy"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -111,6 +64,7 @@
                 android:text="напечатать копию последнего чека" />
 
             <Button
+                android:enabled="false"
                 android:id="@+id/bthXReport"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -118,6 +72,7 @@
                 android:text="X-Report" />
 
             <Button
+                android:enabled="false"
                 android:id="@+id/bthZReport"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

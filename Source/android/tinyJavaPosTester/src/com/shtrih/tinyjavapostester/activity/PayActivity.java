@@ -55,7 +55,7 @@ public class PayActivity extends AppCompatActivity {
                 public void onResponse(Call<OrderResponse> call, Response<OrderResponse> response) {
                     int responseCode = response.code();
                     if (responseCode == 200) {
-                        if ((response.body() == null)) {
+                        if ((response.body() != null)) {
                             sendDataToMainActivity(response.body());
                         } else {
                             showMessage("Ответ на запрос не содержит данных");

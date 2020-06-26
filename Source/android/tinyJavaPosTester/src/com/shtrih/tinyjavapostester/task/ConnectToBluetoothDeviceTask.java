@@ -8,6 +8,7 @@ import com.shtrih.fiscalprinter.ShtrihFiscalPrinter;
 import com.shtrih.jpos.fiscalprinter.FirmwareUpdateObserver;
 import com.shtrih.jpos.fiscalprinter.SmFptrConst;
 import com.shtrih.tinyjavapostester.JposConfig;
+import com.shtrih.tinyjavapostester.activity.AbstractActivity;
 import com.shtrih.tinyjavapostester.activity.MainActivity;
 import com.shtrih.tinyjavapostester.MainViewModel;
 
@@ -18,7 +19,7 @@ import static com.shtrih.tinyjavapostester.activity.MainActivity.PROTOCOL;
 
 public class ConnectToBluetoothDeviceTask extends AsyncTask<Void, Void, String> {
 
-    private final MainActivity parent;
+    private final AbstractActivity parent;
     private final String address;
     private final FirmwareUpdateObserver observer;
     private final String timeout;
@@ -31,7 +32,7 @@ public class ConnectToBluetoothDeviceTask extends AsyncTask<Void, Void, String> 
 
     private ProgressDialog dialog;
 
-    public ConnectToBluetoothDeviceTask(MainActivity parent, String address, FirmwareUpdateObserver observer, String timeout, boolean fastConnect, boolean scocFirmwareAutoupdate, MainViewModel model) {
+    public ConnectToBluetoothDeviceTask(AbstractActivity parent, String address, FirmwareUpdateObserver observer, String timeout, boolean fastConnect, boolean scocFirmwareAutoupdate, MainViewModel model) {
         this.parent = parent;
 
         this.address = address;
@@ -46,8 +47,12 @@ public class ConnectToBluetoothDeviceTask extends AsyncTask<Void, Void, String> 
     protected void onPreExecute() {
         super.onPreExecute();
         parent.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
-        dialog = ProgressDialog.show(parent, "Connecting to device", "Please wait...", true);
-    }
+        parent.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                dialog = ProgressDialog.show(parent, "Подключение к устройству", "Пожалуйста, подождите", true);
+            }
+        });    }
 
     @Override
     protected String doInBackground(Void... params) {
@@ -86,14 +91,19 @@ public class ConnectToBluetoothDeviceTask extends AsyncTask<Void, Void, String> 
     @Override
     protected void onPostExecute(String result) {
         super.onPostExecute(result);
-
-        dialog.dismiss();
-
+        parent.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                dialog.dismiss();
+            }
+        });
         if (result == null)
             parent.showMessage("Success " + (doneAt - startedAt) + " ms");
         else
             parent.showMessage(result);
 
         parent.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+        parent.toConnect();
+
     }
 }
