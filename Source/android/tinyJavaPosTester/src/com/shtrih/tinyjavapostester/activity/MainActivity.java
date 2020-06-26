@@ -56,11 +56,12 @@ public class MainActivity extends AbstractActivity {
         Intent intent = getIntent();
         response = (OrderResponse) intent.getSerializableExtra(ORDER_RESPONSE);
         try {
-            deepLinkData = new JSONObject(intent.getStringExtra(DEEP_LINK_DATA));
+            String json = intent.getStringExtra(DEEP_LINK_DATA);
+            if(json != null)
+                deepLinkData = new JSONObject(json);
         } catch (JSONException e) {
             showMessage(e.getMessage());
         }
-        showMessage(String.valueOf(response));
         enableBluetooth();
         toConnect();
     }
