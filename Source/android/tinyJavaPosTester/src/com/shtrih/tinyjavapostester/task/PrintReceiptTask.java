@@ -4,6 +4,7 @@ import com.shtrih.fiscalprinter.ShtrihFiscalPrinter;
 import com.shtrih.fiscalprinter.command.TextDocumentFilter;
 import com.shtrih.jpos.fiscalprinter.SmFptrConst;
 import com.shtrih.tinyjavapostester.MainViewModel;
+import com.shtrih.tinyjavapostester.Receipt;
 import com.shtrih.tinyjavapostester.activity.AbstractActivity;
 import com.shtrih.tinyjavapostester.activity.MainActivity;
 import com.shtrih.tinyjavapostester.task.message.Message;
@@ -12,9 +13,12 @@ import jpos.FiscalPrinterConst;
 
 public class PrintReceiptTask extends AbstractTask {
 
+    private Receipt receipt;
 
-    public PrintReceiptTask(AbstractActivity parent, MainViewModel model) {
+
+    public PrintReceiptTask(AbstractActivity parent, MainViewModel model, Receipt receipt) {
         super(parent, model);
+        this.receipt = receipt;
     }
 
     private void printSalesReceipt(ShtrihFiscalPrinter printer) throws Exception {
@@ -84,7 +88,8 @@ public class PrintReceiptTask extends AbstractTask {
 
     @Override
     protected void exec(ShtrihFiscalPrinter printer) throws Exception {
-        printSalesReceipt(printer);
+//        printSalesReceipt(printer);
+        receipt.print(printer);
     }
 
     @Override

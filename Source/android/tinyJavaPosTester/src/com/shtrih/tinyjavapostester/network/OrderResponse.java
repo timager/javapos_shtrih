@@ -31,7 +31,7 @@ public class OrderResponse implements Serializable {
         this.order = order;
     }
 
-    public class Order {
+    public class Order implements Serializable {
 
         @SerializedName("order_id")
         @Expose
@@ -267,7 +267,7 @@ public class OrderResponse implements Serializable {
 
     }
 
-    private class Meta {
+    private class Meta implements Serializable {
 
         @SerializedName("api")
         @Expose
@@ -338,7 +338,7 @@ public class OrderResponse implements Serializable {
 
     }
 
-    private class Serv {
+    private class Serv implements Serializable {
 
         @SerializedName("serv_id")
         @Expose
