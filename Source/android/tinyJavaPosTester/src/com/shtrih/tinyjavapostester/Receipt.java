@@ -25,10 +25,17 @@ public class Receipt {
 
     public void print(ShtrihFiscalPrinter printer) throws Exception {
         prepare(printer);
+        printer.setNumHeaderLines(3);
+        System.out.println(printer.getNumHeaderLines());
+        printer.setHeaderLine(1, "------------------", false);
+        printer.setHeaderLine(2, "Номер заказа: " + order.getOrderNumber(), false);
+        printer.setHeaderLine(3, "------------------", false);
+//        printer.setHeaderLine(4, "------------------", true);
+//        printer.setHeaderLine(5, "------------------", true);
+//        printer.setHeaderLine(6, "------------------", true);
+
         final int fiscalReceiptType = FiscalPrinterConst.FPTR_RT_SALES;
-
         printer.setFiscalReceiptType(fiscalReceiptType);
-
         printer.beginFiscalReceipt(true);
 
         printer.fsWriteTag(1021, deepLinkData.getString("username"));
@@ -50,7 +57,7 @@ public class Receipt {
         if (paymentCard != 0) {
             printer.printRecTotal(paymentCard, paymentCard, "");
         }
-        printer.endFiscalReceipt(true);
+        printer.endFiscalReceipt(false);
     }
 
     private void prepare(ShtrihFiscalPrinter printer) throws JposException {
