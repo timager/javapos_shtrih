@@ -6,7 +6,6 @@ import com.shtrih.fiscalprinter.command.FSDocType;
 import com.shtrih.fiscalprinter.command.FSStatusInfo;
 import com.shtrih.fiscalprinter.command.LongPrinterStatus;
 import com.shtrih.jpos.fiscalprinter.JposExceptionHandler;
-import com.shtrih.jpos.fiscalprinter.SmFptrConst;
 import com.shtrih.tinyjavapostester.network.OrderResponse;
 
 import org.json.JSONObject;
@@ -25,14 +24,15 @@ public class Receipt {
 
     public void print(ShtrihFiscalPrinter printer) throws Exception {
         prepare(printer);
-        printer.setNumHeaderLines(3);
-        System.out.println(printer.getNumHeaderLines());
-        printer.setHeaderLine(1, "------------------", false);
-        printer.setHeaderLine(2, "Номер заказа: " + order.getOrderNumber(), false);
-        printer.setHeaderLine(3, "------------------", false);
-//        printer.setHeaderLine(4, "------------------", true);
-//        printer.setHeaderLine(5, "------------------", true);
-//        printer.setHeaderLine(6, "------------------", true);
+        printer.setNumHeaderLines(7);
+        printer.setFontNumber(1);
+        printer.setHeaderLine(1, "********************************", false);
+        printer.setHeaderLine(2, "* "+"ОАО Тестовая клиника", false);
+        printer.setHeaderLine(3, "* "+"\"Колебн и Тим\"", false);
+        printer.setHeaderLine(4, "* "+"г. Тестов ул. Тестов д.228", false);
+        printer.setHeaderLine(5, "********************************", false);
+        printer.setHeaderLine(6, "Заказ № " + order.getOrderNumber(), false);
+        printer.setHeaderLine(7, "--------------------------------", false);
 
         final int fiscalReceiptType = FiscalPrinterConst.FPTR_RT_SALES;
         printer.setFiscalReceiptType(fiscalReceiptType);
