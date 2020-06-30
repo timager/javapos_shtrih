@@ -16,7 +16,7 @@ import com.shtrih.tinyjavapostester.MainViewModel;
 import com.shtrih.tinyjavapostester.databinding.ActivityMainBinding;
 import com.shtrih.tinyjavapostester.task.CheckDayOpenedTask;
 import com.shtrih.tinyjavapostester.task.ConnectToBluetoothDeviceTask;
-import com.shtrih.tinyjavapostester.task.listener.BooleanListener;
+import com.shtrih.tinyjavapostester.task.listener.Listener;
 
 import jpos.JposException;
 
@@ -38,14 +38,14 @@ public abstract class AbstractActivity extends AppCompatActivity {
 
     protected abstract int chooseLayout();
 
-    public void useDayOpened(){
-        new CheckDayOpenedTask(this, model, new BooleanListener() {
+    public void useDayOpened() {
+        new CheckDayOpenedTask(this, model, new Listener<Boolean>() {
             @Override
-            public void action(final boolean data) {
+            public void handle(final Boolean value) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        onDayOpened(data);
+                        onDayOpened(value);
                     }
                 });
             }
@@ -54,7 +54,7 @@ public abstract class AbstractActivity extends AppCompatActivity {
 
     protected abstract void onDayOpened(boolean isOpen);
 
-    protected void enableBluetooth(){
+    protected void enableBluetooth() {
         BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter == null) {
             showMessage("Устройство не поддерживает bluetooth");
@@ -63,17 +63,17 @@ public abstract class AbstractActivity extends AppCompatActivity {
         }
     }
 
-    public void toConnect(){
+    public void toConnect() {
         boolean isEnabled = checkEnabled();
-        if(!isEnabled){
+        if (!isEnabled) {
             Intent i = new Intent(this, DeviceListActivity.class);
             startActivityForResult(i, DeviceListActivity.REQUEST_CONNECT_BT_DEVICE);
-        }else{
+        } else {
             useDayOpened();
         }
     }
 
-    protected boolean checkEnabled(){
+    protected boolean checkEnabled() {
         try {
             return model.getPrinter().getDeviceEnabled();
         } catch (JposException e) {
@@ -106,7 +106,7 @@ public abstract class AbstractActivity extends AppCompatActivity {
                             true,
                             true,
                             model).execute();
-                }else{
+                } else {
                     toConnect();
                 }
             default:

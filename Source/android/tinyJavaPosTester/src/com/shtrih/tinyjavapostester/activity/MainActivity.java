@@ -11,15 +11,27 @@ import android.widget.TextView;
 
 import com.shtrih.tinyjavapostester.R;
 import com.shtrih.tinyjavapostester.Receipt;
+import com.shtrih.tinyjavapostester.network.ConfirmBody;
+import com.shtrih.tinyjavapostester.network.ConfirmResponse;
+import com.shtrih.tinyjavapostester.network.ErrorResponse;
+import com.shtrih.tinyjavapostester.network.NetworkService;
 import com.shtrih.tinyjavapostester.network.OrderResponse;
+import com.shtrih.tinyjavapostester.network.TransactionBody;
+import com.shtrih.tinyjavapostester.network.TransactionResponse;
 import com.shtrih.tinyjavapostester.task.OpenDayTask;
 import com.shtrih.tinyjavapostester.task.PrintDuplicateReceiptTask;
 import com.shtrih.tinyjavapostester.task.PrintReceiptTask;
+import com.shtrih.tinyjavapostester.task.PrintTextTask;
 import com.shtrih.tinyjavapostester.task.PrintXReportTaskKKM;
 import com.shtrih.tinyjavapostester.task.PrintZReportTaskKKM;
+import com.shtrih.tinyjavapostester.task.listener.Listener;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 public class MainActivity extends AbstractActivity {
@@ -57,7 +69,7 @@ public class MainActivity extends AbstractActivity {
         response = (OrderResponse) intent.getSerializableExtra(ORDER_RESPONSE);
         try {
             String json = intent.getStringExtra(DEEP_LINK_DATA);
-            if(json != null)
+            if (json != null)
                 deepLinkData = new JSONObject(json);
         } catch (JSONException e) {
             showMessage(e.getMessage());
@@ -94,8 +106,61 @@ public class MainActivity extends AbstractActivity {
 
     public void printReceipt(View view) {
         Receipt receipt = new Receipt(response.getOrder(), deepLinkData);
-        new PrintReceiptTask(this, model, receipt).execute();
+        new PrintReceiptTask(this, model, receipt, new Listener<Exception>() {
+            @Override
+            public void handle(final Exception value) {
+                createTransaction(value);
+            }
+        }).execute();
 
+    }
+
+    private void createTransaction(final Exception exception) {
+        final TransactionBody transactionBody = new TransactionBody(response.getOrder(), deepLinkData);
+        NetworkService.getInstance().getApi().createTransaction(transactionBody).enqueue(new Callback<TransactionResponse>() {
+            @Override
+            public void onResponse(Call<TransactionResponse> call, Response<TransactionResponse> response) {
+                sendResultToApi(exception, transactionBody.getPackUuid());
+            }
+
+            @Override
+            public void onFailure(Call<TransactionResponse> call, Throwable t) {
+                showMessage("Произошла ошибка при создании транзакции: " + t.getMessage());
+            }
+        });
+    }
+
+    private void sendResultToApi(Exception exception, String uuid) {
+        ConfirmBody confirmBody = new ConfirmBody();
+        confirmBody.setPackUuid(uuid);
+        if (exception != null) {
+            confirmBody.setMessage(exception.getMessage());
+            showMessage("ПРОИЗОШЛА ОШИБКА: \n" + exception.getMessage());
+            new PrintTextTask(MainActivity.this, model, "ПРОИЗОШЛА ОШИБКА: \n" + exception.getMessage()).execute();
+            NetworkService.getInstance().getApi().sendReceiptError(confirmBody).enqueue(new Callback<ErrorResponse>() {
+                @Override
+                public void onResponse(Call<ErrorResponse> call, Response<ErrorResponse> response) {
+                    showMessage("Результат отправлен");
+                }
+
+                @Override
+                public void onFailure(Call<ErrorResponse> call, Throwable t) {
+                    showMessage("Произошла ошибка при отправке результата печати: " + t.getMessage());
+                }
+            });
+        } else {
+            NetworkService.getInstance().getApi().sendReceiptConfirm(confirmBody).enqueue(new Callback<ConfirmResponse>() {
+                @Override
+                public void onResponse(Call<ConfirmResponse> call, Response<ConfirmResponse> response) {
+                    showMessage("Результат отправлен");
+                }
+
+                @Override
+                public void onFailure(Call<ConfirmResponse> call, Throwable t) {
+                    showMessage("Произошла ошибка при отправке результата печати: " + t.getMessage());
+                }
+            });
+        }
     }
 
     public void printReceiptCopy(View view) {

@@ -11,4 +11,16 @@ public interface Api {
     @Headers({"Accept: application/json"})
     @POST(API_PREFIX + "payment/order")
     public Call<OrderResponse> getOrder(@Body OrderBody data);
+
+    @Headers({"Accept: application/json"})
+    @POST(API_PREFIX + "payment/transaction")
+    public Call<TransactionResponse> createTransaction(@Body TransactionBody data);
+
+    @Headers({"Accept: application/json"})
+    @POST(API_PREFIX + "payment/confirm")
+    public Call<ConfirmResponse> sendReceiptConfirm(@Body ConfirmBody data);
+
+    @Headers({"Accept: application/json"})
+    @POST(API_PREFIX + "payment/error")
+    public Call<ErrorResponse> sendReceiptError(@Body ConfirmBody data);
 }

@@ -8,6 +8,7 @@ import com.shtrih.fiscalprinter.command.LongPrinterStatus;
 import com.shtrih.jpos.fiscalprinter.JposExceptionHandler;
 import com.shtrih.tinyjavapostester.network.OrderResponse;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import jpos.FiscalPrinterConst;
@@ -22,32 +23,43 @@ public class Receipt {
         this.deepLinkData = deepLinkData;
     }
 
-    public void print(ShtrihFiscalPrinter printer) throws Exception {
-        prepare(printer);
+    private void printReceiptHeader(ShtrihFiscalPrinter printer) throws JposException {
         printer.setNumHeaderLines(7);
-        printer.setFontNumber(1);
         printer.setHeaderLine(1, "********************************", false);
-        printer.setHeaderLine(2, "* "+"ОАО Тестовая клиника", false);
-        printer.setHeaderLine(3, "* "+"\"Колебн и Тим\"", false);
-        printer.setHeaderLine(4, "* "+"г. Тестов ул. Тестов д.228", false);
+        printer.setHeaderLine(2, "* " + "ОАО Тестовая клиника", false);
+        printer.setHeaderLine(3, "* " + "\"Колебн и Тим\"", false);
+        printer.setHeaderLine(4, "* " + "г. Тестов ул. Тестов д.228", false);
         printer.setHeaderLine(5, "********************************", false);
         printer.setHeaderLine(6, "Заказ № " + order.getOrderNumber(), false);
         printer.setHeaderLine(7, "--------------------------------", false);
+    }
 
-        final int fiscalReceiptType = FiscalPrinterConst.FPTR_RT_SALES;
-        printer.setFiscalReceiptType(fiscalReceiptType);
+    public void print(ShtrihFiscalPrinter printer) throws Exception {
+        prepare(printer);
+        printer.setFontNumber(1);
+        printReceiptHeader(printer);
+        printer.setFiscalReceiptType(FiscalPrinterConst.FPTR_RT_SALES);
         printer.beginFiscalReceipt(true);
+        writeTags(printer);
+        printItems(printer);
+        printTotal(printer);
+        printer.endFiscalReceipt(false);
+    }
 
+    private void writeTags(ShtrihFiscalPrinter printer) throws Exception {
         printer.fsWriteTag(1021, deepLinkData.getString("username"));
+    }
 
+    private void printItems(ShtrihFiscalPrinter printer) throws JposException {
         final String unitName = "Оплата";
 
-
         for (OrderResponse.Serv serv : order.getServs()) {
-            long price = Long.parseLong(serv.getServCost().replace(".", "")) / 100;
+            long price = Long.parseLong(serv.getServCostD().replace(".", "")) / 100;
             printer.printRecItem(serv.getServCode() + " " + serv.getServName(), price, 0, 0, 0, unitName);
         }
+    }
 
+    private void printTotal(ShtrihFiscalPrinter printer) throws JposException, JSONException {
         JSONObject operationData = deepLinkData.getJSONObject("operation_data");
         long paymentCash = operationData.getInt("payment_cash") * 100;
         if (paymentCash != 0) {
@@ -55,9 +67,8 @@ public class Receipt {
         }
         long paymentCard = operationData.getInt("payment_card") * 100;
         if (paymentCard != 0) {
-            printer.printRecTotal(paymentCard, paymentCard, "");
+            printer.printRecTotal(paymentCard, paymentCard, "2");
         }
-        printer.endFiscalReceipt(false);
     }
 
     private void prepare(ShtrihFiscalPrinter printer) throws JposException {

@@ -7,7 +7,6 @@ clean.doFirst {
 
 android {
     compileSdkVersion 27
-
     defaultConfig {
         minSdkVersion 12
         targetSdkVersion 27

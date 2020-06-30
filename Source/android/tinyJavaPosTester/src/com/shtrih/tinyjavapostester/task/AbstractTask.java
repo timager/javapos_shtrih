@@ -66,15 +66,17 @@ public abstract class AbstractTask extends AsyncTask<Void, Void, String> {
             }
         });
 
-        if (result == null)
-            parent.showMessage("Success " + (doneAt - startedAt) + " ms");
-        else
+        if (result == null) {
+//            parent.showMessage("Success " + (doneAt - startedAt) + " ms");
+        } else {
             parent.showMessage(result);
+        }
         parent.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
         postExec();
     }
 
 
     protected abstract void exec(ShtrihFiscalPrinter printer) throws Exception;
+
     protected abstract void postExec();
 }
