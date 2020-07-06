@@ -112,7 +112,6 @@ public class MainActivity extends AbstractActivity {
                 createTransaction(value);
             }
         }).execute();
-
     }
 
     private void createTransaction(final Exception exception) {

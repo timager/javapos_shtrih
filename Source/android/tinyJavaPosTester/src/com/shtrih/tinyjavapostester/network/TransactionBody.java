@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -13,9 +14,35 @@ public class TransactionBody {
 
     public TransactionBody(OrderResponse.Order order, JSONObject deepLinkData) {
         orderId = order.getOrderId();
-        json = new Gson().toJson(order);
         packUuid = UUID.randomUUID().toString();
+
         try {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("pack_uuid", packUuid);
+            jsonObject.put("operation_type", deepLinkData.getInt("operation_type"));
+            jsonObject.put("order_id", orderId);
+            JSONArray operationPayments = new JSONArray();
+            JSONObject operationData = deepLinkData.getJSONObject("operation_data");
+            int paymentCash = operationData.getInt("payment_cash");
+            JSONObject transactionPayCash = new JSONObject();
+            transactionPayCash.put("pay_type", 1);
+            transactionPayCash.put("pay_sum", paymentCash);
+            operationPayments.put(transactionPayCash);
+            int paymentCard = operationData.getInt("payment_card");
+            JSONObject transactionPayCard = new JSONObject();
+            transactionPayCard.put("pay_type", 2);
+            transactionPayCard.put("pay_sum", paymentCard);
+            operationPayments.put(transactionPayCard);
+            jsonObject.put("operation_payments", operationPayments);
+            JSONArray servs = new JSONArray();
+            for (OrderResponse.Serv serv : order.getServs()) {
+                JSONObject transactionServ = new JSONObject();
+                transactionServ.put("serv_id", serv.getServId());
+                transactionServ.put("serv_current_pay", serv.getServCostD());
+                servs.put(transactionServ);
+            }
+            jsonObject.put("Servs", servs);
+            json = jsonObject.toString();
             userId = deepLinkData.getInt("user_id");
             departNumber = deepLinkData.getString("depart_number");
             token = deepLinkData.getString("token");
