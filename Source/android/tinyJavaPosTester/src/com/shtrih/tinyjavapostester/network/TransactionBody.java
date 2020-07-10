@@ -1,5 +1,7 @@
 package com.shtrih.tinyjavapostester.network;
 
+import android.os.Build;
+
 import com.google.gson.Gson;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -12,13 +14,16 @@ import java.util.UUID;
 
 public class TransactionBody {
 
-    public TransactionBody(OrderResponse.Order order, JSONObject deepLinkData) {
+    public TransactionBody(OrderResponse.Order order, JSONObject deepLinkData, String kktNumber, long receiptNumber) {
         orderId = order.getOrderId();
         packUuid = UUID.randomUUID().toString();
 
         try {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("pack_uuid", packUuid);
+            jsonObject.put("HST_Name", Build.DEVICE);
+            jsonObject.put("KKM", kktNumber);
+            jsonObject.put("check_num", receiptNumber);
             jsonObject.put("operation_type", deepLinkData.getInt("operation_type"));
             jsonObject.put("order_id", orderId);
             JSONArray operationPayments = new JSONArray();

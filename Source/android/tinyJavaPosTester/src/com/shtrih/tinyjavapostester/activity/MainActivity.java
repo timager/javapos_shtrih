@@ -115,7 +115,15 @@ public class MainActivity extends AbstractActivity {
     }
 
     private void createTransaction(final Exception exception) {
-        final TransactionBody transactionBody = new TransactionBody(response.getOrder(), deepLinkData);
+        String kkmNumber = "";
+        long receiptNumber = 0;
+        try{
+            kkmNumber = model.getPrinter().getPhysicalDeviceName();
+            receiptNumber = model.getPrinter().getReceiptNumber();
+        }catch (Exception e){
+
+        }
+        final TransactionBody transactionBody = new TransactionBody(response.getOrder(), deepLinkData, kkmNumber, receiptNumber);
         NetworkService.getInstance().getApi().createTransaction(transactionBody).enqueue(new Callback<TransactionResponse>() {
             @Override
             public void onResponse(Call<TransactionResponse> call, Response<TransactionResponse> response) {
