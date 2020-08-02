@@ -21,7 +21,6 @@ import com.shtrih.tinyjavapostester.network.TransactionResponse;
 import com.shtrih.tinyjavapostester.task.OpenDayTask;
 import com.shtrih.tinyjavapostester.task.PrintDuplicateReceiptTask;
 import com.shtrih.tinyjavapostester.task.PrintReceiptTask;
-import com.shtrih.tinyjavapostester.task.PrintTextTask;
 import com.shtrih.tinyjavapostester.task.PrintXReportTaskKKM;
 import com.shtrih.tinyjavapostester.task.PrintZReportTaskKKM;
 import com.shtrih.tinyjavapostester.task.listener.Listener;
@@ -114,6 +113,14 @@ public class MainActivity extends AbstractActivity {
         }).execute();
     }
 
+    private String getMessageFromTrace(StackTraceElement[] lines) {
+        String result = "";
+        for (StackTraceElement line : lines) {
+            result += line + "\n";
+        }
+        return result;
+    }
+
     private void createTransaction(final Exception exception) {
         String kkmNumber = "";
         long receiptNumber = 0;
@@ -121,7 +128,7 @@ public class MainActivity extends AbstractActivity {
             kkmNumber = model.getPrinter().getPhysicalDeviceName();
             receiptNumber = model.getPrinter().getReceiptNumber();
         } catch (Exception e) {
-            showMessage(e.getMessage());
+            showMessage(getMessageFromTrace(e.getStackTrace()));
         }
         final TransactionBody transactionBody = new TransactionBody(response.getOrder(), deepLinkData, kkmNumber, receiptNumber);
         NetworkService.getInstance().getApi().createTransaction(transactionBody).enqueue(new Callback<TransactionResponse>() {

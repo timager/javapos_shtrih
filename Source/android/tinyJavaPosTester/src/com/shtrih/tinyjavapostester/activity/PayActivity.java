@@ -17,6 +17,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
+import java.util.Objects;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -32,7 +34,7 @@ public class PayActivity extends AppCompatActivity {
         if (intent.getData() != null) {
             try {
                 JSONObject data = getJsonFromUrl(intent.getData());
-                dataTextField.setText(intent.getData().toString());
+                dataTextField.setText(data.toString());
                 getOrderDataFromCmdAPI(data);
             } catch (JSONException e) {
                 dataTextField.setText(e.getMessage());
@@ -43,7 +45,7 @@ public class PayActivity extends AppCompatActivity {
     }
 
     private JSONObject getJsonFromUrl(Uri url) throws JSONException {
-        String json = url.getQuery().replaceAll("[/]+$", "");
+        String json = Objects.requireNonNull(url.getQuery()).replaceAll("[/]+$", "");
         return new JSONObject(json);
     }
 
