@@ -104,7 +104,7 @@ public class ConnectToBluetoothDeviceTask extends AsyncTask<Void, Void, String> 
             parent.showMessage(result);
 
         parent.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
-        parent.toConnect();
+        parent.toConnect(address);
 
     }
 }
