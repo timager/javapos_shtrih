@@ -153,7 +153,7 @@ public class MainActivity extends AbstractActivity {
             NetworkService.getInstance().getApi().sendReceiptError(confirmBody).enqueue(new Callback<ErrorResponse>() {
                 @Override
                 public void onResponse(Call<ErrorResponse> call, Response<ErrorResponse> response) {
-                    showMessage("Результат отправлен");
+                    showMessage("Успешный результат отправлен");
                 }
 
                 @Override
@@ -165,7 +165,7 @@ public class MainActivity extends AbstractActivity {
             NetworkService.getInstance().getApi().sendReceiptConfirm(confirmBody).enqueue(new Callback<ConfirmResponse>() {
                 @Override
                 public void onResponse(Call<ConfirmResponse> call, Response<ConfirmResponse> response) {
-                    showMessage("Результат отправлен");
+                    showMessage("Результат с ошибкой отправлен");
                 }
 
                 @Override
