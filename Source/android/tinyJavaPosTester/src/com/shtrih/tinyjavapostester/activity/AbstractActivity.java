@@ -14,6 +14,8 @@ import com.shtrih.jpos.fiscalprinter.FirmwareUpdateObserver;
 import com.shtrih.tinyjavapostester.FirmwareUpdaterObserverImpl;
 import com.shtrih.tinyjavapostester.MainViewModel;
 import com.shtrih.tinyjavapostester.databinding.ActivityMainBinding;
+import com.shtrih.tinyjavapostester.search.tcp.TcpDeviceSearchActivity;
+import com.shtrih.tinyjavapostester.task.AutoConnectBluetoothDeviceTask;
 import com.shtrih.tinyjavapostester.task.CheckDayOpenedTask;
 import com.shtrih.tinyjavapostester.task.ConnectToBluetoothDeviceTask;
 import com.shtrih.tinyjavapostester.task.listener.Listener;
@@ -24,6 +26,7 @@ public abstract class AbstractActivity extends AppCompatActivity {
 
     public static final String TIMEOUT = "10000";
     protected MainViewModel model;
+    protected String address;
 
 
     @Override
@@ -62,11 +65,24 @@ public abstract class AbstractActivity extends AppCompatActivity {
         }
     }
 
+    protected void autoConnectBluetoothDevice() {
+
+        new AutoConnectBluetoothDeviceTask(
+                this,
+                address,
+                createFirmwareUpdateObserver(),
+                TIMEOUT,
+                false,
+                false,
+                model).execute();
+    }
+
     public void toConnect() {
         boolean isEnabled = checkEnabled();
         if (!isEnabled) {
-            Intent i = new Intent(this, DeviceListActivity.class);
-            startActivityForResult(i, DeviceListActivity.REQUEST_CONNECT_BT_DEVICE);
+            autoConnectBluetoothDevice();
+//            Intent i = new Intent(this, DeviceListActivity.class);
+//            startActivityForResult(i, DeviceListActivity.REQUEST_CONNECT_BT_DEVICE);
         } else {
             useDayOpened();
         }
@@ -108,13 +124,29 @@ public abstract class AbstractActivity extends AppCompatActivity {
                 } else {
                     toConnect();
                 }
+            case TcpDeviceSearchActivity.REQUEST_SEARCH_TCP_DEVICE:
+                if (resultCode == Activity.RESULT_OK) {
+
+                    Bundle extras = data.getExtras();
+
+                    if (extras == null)
+                        return;
+
+                    String address = extras.getString("Address");
+
+                    if (address == null)
+                        return;
+
+                    this.address = address;
+                }
+                break;
             default:
                 super.onActivityResult(requestCode, resultCode, data);
         }
 
     }
 
-    private FirmwareUpdateObserver createFirmwareUpdateObserver() {
+    protected FirmwareUpdateObserver createFirmwareUpdateObserver() {
         return new FirmwareUpdaterObserverImpl(model);
     }
 
