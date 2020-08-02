@@ -158,7 +158,7 @@
 		<prop name="payType15" type="String" value="15"/>
 		<!-- Payment names -->
 		<!-- <prop name="paymentName1" type="String" value="НАЛИЧНЫМИ"/> -->
-		<!-- <prop name="paymentName2" type="String" value="paymentName2"/> -->
+		 <prop name="paymentName2" type="String" value="paymentName2"/>
 		<!-- <prop name="paymentName3" type="String" value="paymentName3"/> -->
 		<!-- <prop name="paymentName4" type="String" value="paymentName4"/> -->
 		<!-- ZeroPriceFilter -->

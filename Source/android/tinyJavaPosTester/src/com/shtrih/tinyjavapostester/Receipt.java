@@ -24,14 +24,12 @@ public class Receipt {
     }
 
     private void printReceiptHeader(ShtrihFiscalPrinter printer) throws JposException {
-        printer.setNumHeaderLines(7);
-        printer.setHeaderLine(1, "********************************", false);
-        printer.setHeaderLine(2, "* " + "ОАО Тестовая клиника", false);
-        printer.setHeaderLine(3, "* " + "\"Колебн и Тим\"", false);
-        printer.setHeaderLine(4, "* " + "г. Тестов ул. Тестов д.228", false);
-        printer.setHeaderLine(5, "********************************", false);
-        printer.setHeaderLine(6, "Заказ № " + order.getOrderNumber(), false);
-        printer.setHeaderLine(7, "--------------------------------", false);
+        printer.setNumHeaderLines(5);
+        printer.setHeaderLine(1, "* " + "ОАО Тестовая клиника", false);
+        printer.setHeaderLine(2, "* " + "\"Колебн и Тим\"", false);
+        printer.setHeaderLine(3, "* " + "г. Тестов ул. Тестов д.228", false);
+        printer.setHeaderLine(4, "Заказ № " + order.getOrderNumber(), false);
+        printer.setHeaderLine(5, "----------------------------", false);
     }
 
     public void print(ShtrihFiscalPrinter printer) throws Exception {

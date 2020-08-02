@@ -16,7 +16,6 @@ import com.shtrih.tinyjavapostester.network.OrderResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.Serializable;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -33,7 +32,7 @@ public class PayActivity extends AppCompatActivity {
         if (intent.getData() != null) {
             try {
                 JSONObject data = getJsonFromUrl(intent.getData());
-                dataTextField.setText(data.toString());
+                dataTextField.setText(intent.getData().toString());
                 getOrderDataFromCmdAPI(data);
             } catch (JSONException e) {
                 dataTextField.setText(e.getMessage());

@@ -22,8 +22,7 @@ import jpos.JposException;
 
 public abstract class AbstractActivity extends AppCompatActivity {
 
-    public static final String PROTOCOL = "0";
-    public static final String TIMEOUT = "3000";
+    public static final String TIMEOUT = "10000";
     protected MainViewModel model;
 
 
@@ -103,8 +102,8 @@ public abstract class AbstractActivity extends AppCompatActivity {
                             address,
                             createFirmwareUpdateObserver(),
                             TIMEOUT,
-                            true,
-                            true,
+                            false,
+                            false,
                             model).execute();
                 } else {
                     toConnect();

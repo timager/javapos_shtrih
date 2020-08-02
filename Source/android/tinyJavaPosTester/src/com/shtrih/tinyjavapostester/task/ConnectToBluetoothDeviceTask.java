@@ -74,7 +74,7 @@ public class ConnectToBluetoothDeviceTask extends AsyncTask<Void, Void, String> 
                 printer.close();
             }
             printer.open("ShtrihFptr");
-            printer.claim(3000);
+            printer.claim(Integer.parseInt(timeout));
             printer.setDeviceEnabled(true);
             model.ScocUpdaterStatus.set("");
             printer.setParameter3(SmFptrConst.SMFPTR_DIO_PARAM_FIRMWARE_UPDATE_OBSERVER, observer);
@@ -82,6 +82,7 @@ public class ConnectToBluetoothDeviceTask extends AsyncTask<Void, Void, String> 
             return null;
 
         } catch (Exception e) {
+            e.printStackTrace();
             return e.getMessage();
         } finally {
             doneAt = System.currentTimeMillis();
