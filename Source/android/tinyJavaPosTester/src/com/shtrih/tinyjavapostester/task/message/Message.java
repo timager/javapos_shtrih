@@ -12,7 +12,7 @@ public class Message {
 
     public Message(String title) {
         this.title = title;
-        this.text = "Пожалуйста, подождиде...";
+        this.text = "Пожалуйста, подождите...";
     }
 
     public String getTitle() {
