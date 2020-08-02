@@ -1,6 +1,7 @@
 package com.shtrih.tinyjavapostester.task;
 
 import com.shtrih.fiscalprinter.ShtrihFiscalPrinter;
+import com.shtrih.fiscalprinter.command.FSOpenDay;
 import com.shtrih.tinyjavapostester.activity.AbstractActivity;
 import com.shtrih.tinyjavapostester.MainViewModel;
 import com.shtrih.tinyjavapostester.task.message.Message;
@@ -19,7 +20,10 @@ public class OpenDayTask extends AbstractTask {
     }
 
     protected void exec(ShtrihFiscalPrinter printer) throws JposException {
-        printer.openFiscalDay();
+//        printer.openFiscalDay();
+        FSOpenDay command = new FSOpenDay();
+        command.setSysPassword(printer.getSysPassword());
+        printer.fsOpenDay(command);
     }
 
     @Override

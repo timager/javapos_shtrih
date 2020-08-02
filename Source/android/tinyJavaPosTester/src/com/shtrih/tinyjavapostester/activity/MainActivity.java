@@ -104,11 +104,6 @@ public class MainActivity extends AbstractActivity {
     }
 
 
-    public void test(View v) {
-        new PrintTextTask(this, model, "АХАХАХАХАХХАХАХАХАХХАХАХАХАХАХАХ (с) доктор Ливси").execute();
-    }
-
-
     public void printReceipt(View view) {
         Receipt receipt = new Receipt(response.getOrder(), deepLinkData);
         new PrintReceiptTask(this, model, receipt, new Listener<Exception>() {
@@ -148,7 +143,6 @@ public class MainActivity extends AbstractActivity {
         if (exception != null) {
             confirmBody.setMessage(exception.getMessage());
             showMessage("ПРОИЗОШЛА ОШИБКА: \n" + exception.getMessage());
-            new PrintTextTask(MainActivity.this, model, "ПРОИЗОШЛА ОШИБКА: \n" + exception.getMessage()).execute();
             NetworkService.getInstance().getApi().sendReceiptError(confirmBody).enqueue(new Callback<ErrorResponse>() {
                 @Override
                 public void onResponse(Call<ErrorResponse> call, Response<ErrorResponse> response) {
@@ -188,20 +182,20 @@ public class MainActivity extends AbstractActivity {
     protected void onDayOpened(boolean isOpen) {
         if (isOpen) {
             infoView.setText("Смена открыта, касса готова к работе");
-//            btnOpenDay.setEnabled(false);
-//            if (response != null)
-//                btnPrintReceipt.setEnabled(true);
-//            btnPrintCopy.setEnabled(true);
-//            bthXReport.setEnabled(true);
-//            bthZReport.setEnabled(true);
+            btnOpenDay.setEnabled(false);
+            if (response != null)
+                btnPrintReceipt.setEnabled(true);
+            btnPrintCopy.setEnabled(true);
+            bthXReport.setEnabled(true);
+            bthZReport.setEnabled(true);
         } else {
             infoView.setText("Необходимо открыть смену");
-//            btnOpenDay.setEnabled(true);
-//            if (response != null)
-//                btnPrintReceipt.setEnabled(false);
-//            btnPrintCopy.setEnabled(false);
-//            bthXReport.setEnabled(false);
-//            bthZReport.setEnabled(false);
+            btnOpenDay.setEnabled(true);
+            if (response != null)
+                btnPrintReceipt.setEnabled(false);
+            btnPrintCopy.setEnabled(false);
+            bthXReport.setEnabled(false);
+            bthZReport.setEnabled(false);
         }
     }
 }
