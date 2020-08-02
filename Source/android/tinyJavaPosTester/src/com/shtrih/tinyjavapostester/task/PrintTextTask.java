@@ -1,6 +1,7 @@
 package com.shtrih.tinyjavapostester.task;
 
 import com.shtrih.fiscalprinter.ShtrihFiscalPrinter;
+import com.shtrih.fiscalprinter.command.FSFiscalization;
 import com.shtrih.fiscalprinter.command.FSReFiscalization;
 import com.shtrih.fiscalprinter.command.FSRegistrationReport;
 import com.shtrih.fiscalprinter.command.FSResetState;
@@ -28,11 +29,11 @@ public class PrintTextTask extends AbstractTask {
 
     protected void exec(ShtrihFiscalPrinter printer) throws JposException {
         printer.resetPrinter();
-        FSResetState com = new FSResetState();
-        com.setSysPassword(printer.getSysPassword());
-        printer.executeCommand(com);
-//        FSReFiscalization command = new FSReFiscalization(printer.getSysPassword(), "784105015925", "7842033384", 2, 1, 2);
-//        printer.executeCommand(command);
+//        FSResetState com = new FSResetState();
+//        com.setSysPassword(printer.getSysPassword());
+//        printer.executeCommand(com);
+        FSFiscalization command = new FSFiscalization(printer.getSysPassword(), "784105015925", "", 2, 1);
+        printer.executeCommand(command);
 //        Fiscalizer fiscalizer = new Fiscalizer();
 //        ParametersFiscal parameters = new ParametersFiscal();
 //        parameters.CashierName = "Гераймович Николебн Максимович Погромизд";
