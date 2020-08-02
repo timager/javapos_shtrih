@@ -23,6 +23,7 @@ public class PrintTextTask extends AbstractTask {
 
     protected void exec(ShtrihFiscalPrinter printer) throws JposException {
         printer.printText(text);
+        parent.showMessage(String.valueOf(printer.fsReadStatus().getStatus().getCode()));
     }
 
     @Override

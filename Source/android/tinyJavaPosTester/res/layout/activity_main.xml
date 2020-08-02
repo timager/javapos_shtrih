@@ -38,7 +38,13 @@
                 android:layout_marginRight="5dip"
                 android:id="@+id/info"
                 android:text="Загрузка" />
-
+            <Button
+                android:enabled="false"
+                android:id="@+id/btnTest"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="test"
+                android:text="test" />
             <Button
                 android:enabled="false"
                 android:id="@+id/btnOpenDay"

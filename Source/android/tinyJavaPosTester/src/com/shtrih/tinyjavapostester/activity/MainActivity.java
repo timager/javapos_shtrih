@@ -104,6 +104,11 @@ public class MainActivity extends AbstractActivity {
     }
 
 
+    public void test(View v) {
+        new PrintTextTask(this, model, "АХАХАХАХАХХАХАХАХАХХАХАХАХАХАХАХ (с) доктор Ливси").execute();
+    }
+
+
     public void printReceipt(View view) {
         Receipt receipt = new Receipt(response.getOrder(), deepLinkData);
         new PrintReceiptTask(this, model, receipt, new Listener<Exception>() {
