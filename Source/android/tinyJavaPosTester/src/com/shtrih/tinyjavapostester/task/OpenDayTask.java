@@ -20,10 +20,7 @@ public class OpenDayTask extends AbstractTask {
     }
 
     protected void exec(ShtrihFiscalPrinter printer) throws JposException {
-//        printer.openFiscalDay();
-        FSOpenDay command = new FSOpenDay();
-        command.setSysPassword(printer.getSysPassword());
-        printer.fsOpenDay(command);
+        printer.openFiscalDay();
     }
 
     @Override
