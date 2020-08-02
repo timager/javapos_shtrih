@@ -2,6 +2,8 @@ package com.shtrih.tinyjavapostester.task;
 
 import com.shtrih.fiscalprinter.ShtrihFiscalPrinter;
 import com.shtrih.fiscalprinter.command.FSReFiscalization;
+import com.shtrih.fiscalprinter.command.FSRegistrationReport;
+import com.shtrih.fiscalprinter.command.FSResetState;
 import com.shtrih.jpos1c.xml.fnoperation.ParametersFiscal;
 import com.shtrih.tinyjavapostester.Fiscalizer;
 import com.shtrih.tinyjavapostester.MainViewModel;
@@ -26,7 +28,9 @@ public class PrintTextTask extends AbstractTask {
 
     protected void exec(ShtrihFiscalPrinter printer) throws JposException {
         printer.resetPrinter();
-        FSReFiscalization command = new FSReFiscalization(printer.getSysPassword(), "784105015925", "", 2, 1, 2);
+        FSResetState com = new FSResetState();
+        printer.executeCommand(com);
+        FSReFiscalization command = new FSReFiscalization(printer.getSysPassword(), "784105015925", "7842033384", 2, 1, 2);
         printer.executeCommand(command);
 //        Fiscalizer fiscalizer = new Fiscalizer();
 //        ParametersFiscal parameters = new ParametersFiscal();
