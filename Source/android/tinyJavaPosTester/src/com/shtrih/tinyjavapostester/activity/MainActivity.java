@@ -124,11 +124,11 @@ public class MainActivity extends AbstractActivity {
     private void createTransaction(final Exception exception) {
         String kkmNumber = "";
         long receiptNumber = 0;
-        try{
+        try {
             kkmNumber = model.getPrinter().getPhysicalDeviceName();
             receiptNumber = model.getPrinter().getReceiptNumber();
-        }catch (Exception e){
-
+        } catch (Exception e) {
+            showMessage(e.getMessage());
         }
         final TransactionBody transactionBody = new TransactionBody(response.getOrder(), deepLinkData, kkmNumber, receiptNumber);
         NetworkService.getInstance().getApi().createTransaction(transactionBody).enqueue(new Callback<TransactionResponse>() {

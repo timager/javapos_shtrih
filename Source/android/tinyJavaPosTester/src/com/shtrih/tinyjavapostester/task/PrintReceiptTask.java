@@ -22,7 +22,7 @@ public class PrintReceiptTask extends AbstractTask {
 
     @Override
     Message makeMessage() {
-        return new Message("Печать чека");
+        return new Message("Печать чека и отправка результата");
     }
 
     @Override
