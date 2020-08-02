@@ -74,7 +74,7 @@ public abstract class AbstractActivity extends AppCompatActivity {
                 address,
                 createFirmwareUpdateObserver(),
                 TIMEOUT,
-                false,
+                true,
                 false,
                 model).execute();
     }
@@ -86,11 +86,18 @@ public abstract class AbstractActivity extends AppCompatActivity {
                 Intent i = new Intent(this, DeviceListActivity.class);
                 startActivityForResult(i, DeviceListActivity.REQUEST_CONNECT_BT_DEVICE);
             }else{
-                autoConnectBluetoothDevice();
+                new ConnectToBluetoothDeviceTask(
+                        this,
+                        address,
+                        createFirmwareUpdateObserver(),
+                        TIMEOUT,
+                        false,
+                        false,
+                        model).execute();
             }
         } else {
             this.address = address;
-            getPreferences(MODE_PRIVATE).edit().putString(ADDRESS, address).commit();
+            getPreferences(MODE_PRIVATE).edit().putString(ADDRESS, address).apply();
             useDayOpened();
         }
     }
@@ -138,9 +145,7 @@ public abstract class AbstractActivity extends AppCompatActivity {
 
                     if (extras == null)
                         return;
-
                     String address = extras.getString("Address");
-
                     if (address == null)
                         return;
 

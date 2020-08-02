@@ -18,7 +18,6 @@ import com.shtrih.tinyjavapostester.network.NetworkService;
 import com.shtrih.tinyjavapostester.network.OrderResponse;
 import com.shtrih.tinyjavapostester.network.TransactionBody;
 import com.shtrih.tinyjavapostester.network.TransactionResponse;
-import com.shtrih.tinyjavapostester.task.AutoConnectBluetoothDeviceTask;
 import com.shtrih.tinyjavapostester.task.OpenDayTask;
 import com.shtrih.tinyjavapostester.task.PrintDuplicateReceiptTask;
 import com.shtrih.tinyjavapostester.task.PrintReceiptTask;
@@ -75,7 +74,7 @@ public class MainActivity extends AbstractActivity {
             showMessage(e.getMessage());
         }
         enableBluetooth();
-        toConnect();
+        toConnect(address);
     }
 
     @Override
@@ -92,14 +91,8 @@ public class MainActivity extends AbstractActivity {
             startActivityForResult(i, DeviceListActivity.REQUEST_CONNECT_BT_DEVICE);
             return true;
         }
-        if(id == R.id.action_auto_connect_bluetooth){
-            autoConnectBluetoothDevice();
-            return true;
-        }
         return super.onOptionsItemSelected(item);
     }
-
-
 
     public void printXReport(View v) {
         new PrintXReportTaskKKM(this, model).execute();
