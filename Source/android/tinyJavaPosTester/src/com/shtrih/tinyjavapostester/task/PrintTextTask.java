@@ -29,6 +29,7 @@ public class PrintTextTask extends AbstractTask {
     protected void exec(ShtrihFiscalPrinter printer) throws JposException {
         printer.resetPrinter();
         FSResetState com = new FSResetState();
+        com.setSysPassword(printer.getSysPassword());
         printer.executeCommand(com);
         FSReFiscalization command = new FSReFiscalization(printer.getSysPassword(), "784105015925", "7842033384", 2, 1, 2);
         printer.executeCommand(command);
