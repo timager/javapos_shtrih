@@ -45,7 +45,6 @@
                 android:onClick="test"
                 android:text="test" />
             <Button
-                android:enabled="false"
                 android:id="@+id/btnOpenDay"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -53,7 +52,6 @@
                 android:text="Открыть смену" />
 
             <Button
-                android:enabled="false"
                 android:id="@+id/btnPrintReceipt"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -61,7 +59,6 @@
                 android:text="напечатать чек" />
 
             <Button
-                android:enabled="false"
                 android:id="@+id/btnPrintCopy"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -69,7 +66,6 @@
                 android:text="напечатать копию последнего чека" />
 
             <Button
-                android:enabled="false"
                 android:id="@+id/bthXReport"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -77,7 +73,6 @@
                 android:text="X-Report" />
 
             <Button
-                android:enabled="false"
                 android:id="@+id/bthZReport"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

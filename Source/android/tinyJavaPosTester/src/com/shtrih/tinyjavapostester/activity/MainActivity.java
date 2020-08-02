@@ -188,20 +188,20 @@ public class MainActivity extends AbstractActivity {
     protected void onDayOpened(boolean isOpen) {
         if (isOpen) {
             infoView.setText("Смена открыта, касса готова к работе");
-            btnOpenDay.setEnabled(false);
-            if (response != null)
-                btnPrintReceipt.setEnabled(true);
-            btnPrintCopy.setEnabled(true);
-            bthXReport.setEnabled(true);
-            bthZReport.setEnabled(true);
+//            btnOpenDay.setEnabled(false);
+//            if (response != null)
+//                btnPrintReceipt.setEnabled(true);
+//            btnPrintCopy.setEnabled(true);
+//            bthXReport.setEnabled(true);
+//            bthZReport.setEnabled(true);
         } else {
             infoView.setText("Необходимо открыть смену");
-            btnOpenDay.setEnabled(true);
-            if (response != null)
-                btnPrintReceipt.setEnabled(false);
-            btnPrintCopy.setEnabled(false);
-            bthXReport.setEnabled(false);
-            bthZReport.setEnabled(false);
+//            btnOpenDay.setEnabled(true);
+//            if (response != null)
+//                btnPrintReceipt.setEnabled(false);
+//            btnPrintCopy.setEnabled(false);
+//            bthXReport.setEnabled(false);
+//            bthZReport.setEnabled(false);
         }
     }
 }
