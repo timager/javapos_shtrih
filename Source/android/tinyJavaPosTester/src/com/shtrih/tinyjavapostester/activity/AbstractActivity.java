@@ -25,6 +25,7 @@ import jpos.JposException;
 public abstract class AbstractActivity extends AppCompatActivity {
 
     public static final String TIMEOUT = "10000";
+    public static final String ADDRESS = "ADDRESS";
     protected MainViewModel model;
     protected String address;
 
@@ -32,6 +33,7 @@ public abstract class AbstractActivity extends AppCompatActivity {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        address = getPreferences(MODE_PRIVATE).getString(ADDRESS, null);
         ActivityMainBinding binding = DataBindingUtil.setContentView(this, chooseLayout());
         model = ViewModelProviders.of(this).get(MainViewModel.class);
         binding.setVm(model);
@@ -77,13 +79,18 @@ public abstract class AbstractActivity extends AppCompatActivity {
                 model).execute();
     }
 
-    public void toConnect() {
+    public void toConnect(String address) {
         boolean isEnabled = checkEnabled();
         if (!isEnabled) {
-            autoConnectBluetoothDevice();
-//            Intent i = new Intent(this, DeviceListActivity.class);
-//            startActivityForResult(i, DeviceListActivity.REQUEST_CONNECT_BT_DEVICE);
+            if(this.address == null){
+                Intent i = new Intent(this, DeviceListActivity.class);
+                startActivityForResult(i, DeviceListActivity.REQUEST_CONNECT_BT_DEVICE);
+            }else{
+                autoConnectBluetoothDevice();
+            }
         } else {
+            this.address = address;
+            getPreferences(MODE_PRIVATE).edit().putString(ADDRESS, address).commit();
             useDayOpened();
         }
     }
@@ -122,7 +129,7 @@ public abstract class AbstractActivity extends AppCompatActivity {
                             false,
                             model).execute();
                 } else {
-                    toConnect();
+                    toConnect(address);
                 }
             case TcpDeviceSearchActivity.REQUEST_SEARCH_TCP_DEVICE:
                 if (resultCode == Activity.RESULT_OK) {
