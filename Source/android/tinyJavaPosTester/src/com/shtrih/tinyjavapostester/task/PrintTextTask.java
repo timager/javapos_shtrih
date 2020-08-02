@@ -31,8 +31,8 @@ public class PrintTextTask extends AbstractTask {
         FSResetState com = new FSResetState();
         com.setSysPassword(printer.getSysPassword());
         printer.executeCommand(com);
-        FSReFiscalization command = new FSReFiscalization(printer.getSysPassword(), "784105015925", "7842033384", 2, 1, 2);
-        printer.executeCommand(command);
+//        FSReFiscalization command = new FSReFiscalization(printer.getSysPassword(), "784105015925", "7842033384", 2, 1, 2);
+//        printer.executeCommand(command);
 //        Fiscalizer fiscalizer = new Fiscalizer();
 //        ParametersFiscal parameters = new ParametersFiscal();
 //        parameters.CashierName = "Гераймович Николебн Максимович Погромизд";
