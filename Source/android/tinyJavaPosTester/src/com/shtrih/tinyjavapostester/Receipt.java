@@ -3,6 +3,8 @@ package com.shtrih.tinyjavapostester;
 import com.shtrih.fiscalprinter.ShtrihFiscalPrinter;
 import com.shtrih.fiscalprinter.SmFiscalPrinterException;
 import com.shtrih.fiscalprinter.command.FSDocType;
+import com.shtrih.fiscalprinter.command.FSSale;
+import com.shtrih.fiscalprinter.command.FSSale2;
 import com.shtrih.fiscalprinter.command.FSStatusInfo;
 import com.shtrih.fiscalprinter.command.LongPrinterStatus;
 import com.shtrih.jpos.fiscalprinter.JposExceptionHandler;
@@ -54,6 +56,7 @@ public class Receipt {
         for (OrderResponse.Serv serv : order.getServs()) {
             long price = Long.parseLong(serv.getServCostD().replace(".", "")) / 100;
             printer.printRecItem(serv.getServCode() + " " + serv.getServName(), price, 0, 0, 0, unitName);
+            printer.printRecItemAdjustment(FiscalPrinterConst.FPTR_AT_AMOUNT_DISCOUNT, "", (long) (price*0.5), 0);
         }
     }
 
