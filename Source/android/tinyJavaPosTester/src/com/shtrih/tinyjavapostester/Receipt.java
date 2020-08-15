@@ -75,10 +75,10 @@ public class Receipt {
                     + getSpaces("СУММА СКИДКИ" + discount)
                     + discount);
             printer.printRecMessage("ПРОЦЕНТ СКИДКИ"
-                    + getSpaces("ПРОЦЕНТ СКИДКИ" + "=" + discountPercent + "%")
+                    + getSpaces("ПРОЦЕНТ СКИДКИ" + discountPercent + "%")
                      + discountPercent + "%");
             printer.printRecMessage("БАЛАНС КАРТЫ"
-                    + getSpaces("БАЛАНС КАРТЫ" + cardBalance)
+                    + getSpaces("БАЛАНС КАРТЫ" + "=" + cardBalance)
                     + "="+ cardBalance);
             printer.printRecMessage("********************************");
             printer.printRecMessage("********************************");
