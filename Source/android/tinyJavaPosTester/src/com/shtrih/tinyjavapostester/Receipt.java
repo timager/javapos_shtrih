@@ -65,12 +65,20 @@ public class Receipt {
     }
 
 
-    private void printDiscount(){
+    private void printDiscount() {
+        if (order.getOrderDiscountPercent() > 0) {
+            long discount = order.getOrderDiscount();
+            long discountPercent = order.getOrderDiscountPercent();
+            long cardBalance = order.getOrderDiscountBallance();
 
+            // TODO Основание скиди "Дисконтная карта", процент, сумма и балланс карты
+        }
     }
 
     private void printSubTotal() {
-
+        long orderSum = order.getOrderAmount(); //не уверен
+        long orderSumDiscount = order.getOrderAmountWithBenefits();
+        // TODO Про предоплату наверное не нужно выводить, остальное выведи
     }
 
     private void printTotal(ShtrihFiscalPrinter printer) throws JposException, JSONException {
