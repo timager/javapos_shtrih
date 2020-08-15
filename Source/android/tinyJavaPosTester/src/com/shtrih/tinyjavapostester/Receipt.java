@@ -54,9 +54,11 @@ public class Receipt {
         final String unitName = "Оплата";
 
         for (OrderResponse.Serv serv : order.getServs()) {
-            long price = Long.parseLong(serv.getServCostD().replace(".", "")) / 100;
-            printer.printRecItem(serv.getServCode() + " " + serv.getServName(), price, 0, 0, 0, unitName);
-            printer.printRecItemAdjustment(FiscalPrinterConst.FPTR_AT_AMOUNT_DISCOUNT, "", (long) (price*0.5), 0);
+            long price = Long.parseLong(serv.getServCost().replace(".", "")) / 100;
+            long priceDiscount = Long.parseLong(serv.getServCostD().replace(".", "")) / 100;
+            long discount = price - priceDiscount;
+            printer.printRecItem(serv.getServCode() + " " + serv.getServName(), priceDiscount, 0, 0, 0, unitName);
+            printer.printRecItemAdjustment(FiscalPrinterConst.FPTR_AT_AMOUNT_DISCOUNT, "", discount, 0);
         }
     }
 
