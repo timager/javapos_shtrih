@@ -7,6 +7,7 @@ import com.shtrih.fiscalprinter.command.FSStatusInfo;
 import com.shtrih.fiscalprinter.command.LongPrinterStatus;
 import com.shtrih.jpos.fiscalprinter.JposExceptionHandler;
 import com.shtrih.tinyjavapostester.network.OrderResponse;
+
 import org.json.JSONObject;
 
 import jpos.FiscalPrinterConst;
@@ -55,7 +56,7 @@ public class Receipt {
             long price = Long.parseLong(serv.getServCost().replace(".", "")) / 100;
             long priceDiscount = Long.parseLong(serv.getServCostD().replace(".", "")) / 100;
             long discount = price - priceDiscount;
-            printer.printRecItem(serv.getServCode() + " " + serv.getServName(), priceDiscount, 0, 0, 0, unitName);
+            printer.printRecItem(serv.getServCode() + " " + serv.getServName(), price, 0, 0, 0, unitName);
             printer.printRecItemAdjustment(FiscalPrinterConst.FPTR_AT_AMOUNT_DISCOUNT, "", discount, 0);
             printer.printRecMessage("------------");
         }
@@ -70,25 +71,25 @@ public class Receipt {
             printer.printRecMessage("********************************");
             printer.printRecMessage("********************************");
             printer.printRecMessage("ОСНОВАНИЕ СКИДКИ:");
-            printer.printRecMessage("   ДИСКОНТНАЯ КАРТА");
+            printer.printRecMessage("   " + order.getDocName());
             printer.printRecMessage("СУММА СКИДКИ"
-                    + getSpaces("СУММА СКИДКИ" + discount)
-                    + discount);
+                    + getSpaces("СУММА СКИДКИ" + "=" + discount)
+                    + "=" + discount);
             printer.printRecMessage("ПРОЦЕНТ СКИДКИ"
-                    + getSpaces("ПРОЦЕНТ СКИДКИ" + discountPercent + "%")
-                     + discountPercent + "%");
+                    + getSpaces("ПРОЦЕНТ СКИДКИ" + "=" + discountPercent + "%")
+                    + "=" + discountPercent + "%");
             printer.printRecMessage("БАЛАНС КАРТЫ"
                     + getSpaces("БАЛАНС КАРТЫ" + "=" + cardBalance)
-                    + "="+ cardBalance);
+                    + "=" + cardBalance);
             printer.printRecMessage("********************************");
             printer.printRecMessage("********************************");
         }
     }
 
-    private String getSpaces(String text){
+    private String getSpaces(String text) {
         int len = "********************************".length() - text.length();
         StringBuilder str = new StringBuilder();
-        for(int i=0; i < len; i++){
+        for (int i = 0; i < len; i++) {
             str.append(" ");
         }
         return str.toString();
