@@ -3,14 +3,10 @@ package com.shtrih.tinyjavapostester;
 import com.shtrih.fiscalprinter.ShtrihFiscalPrinter;
 import com.shtrih.fiscalprinter.SmFiscalPrinterException;
 import com.shtrih.fiscalprinter.command.FSDocType;
-import com.shtrih.fiscalprinter.command.FSSale;
-import com.shtrih.fiscalprinter.command.FSSale2;
 import com.shtrih.fiscalprinter.command.FSStatusInfo;
 import com.shtrih.fiscalprinter.command.LongPrinterStatus;
 import com.shtrih.jpos.fiscalprinter.JposExceptionHandler;
 import com.shtrih.tinyjavapostester.network.OrderResponse;
-
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import jpos.FiscalPrinterConst;
@@ -42,8 +38,8 @@ public class Receipt {
         printer.beginFiscalReceipt(true);
         writeTags(printer);
         printItems(printer);
-        printDiscount();
-        printSubTotal();
+        printDiscount(printer);
+        printSubTotal(printer);
         printTotal(printer);
         printer.endFiscalReceipt(false);
     }
@@ -61,27 +57,53 @@ public class Receipt {
             long discount = price - priceDiscount;
             printer.printRecItem(serv.getServCode() + " " + serv.getServName(), priceDiscount, 0, 0, 0, unitName);
             printer.printRecItemAdjustment(FiscalPrinterConst.FPTR_AT_AMOUNT_DISCOUNT, "", discount, 0);
+            printer.printRecMessage("------------");
         }
     }
 
 
-    private void printDiscount() {
+    private void printDiscount(ShtrihFiscalPrinter printer) throws JposException {
         if (order.getOrderDiscountPercent() > 0) {
             long discount = order.getOrderDiscount();
             long discountPercent = order.getOrderDiscountPercent();
             long cardBalance = order.getOrderDiscountBallance();
-
-            // TODO Основание скиди "Дисконтная карта", процент, сумма и балланс карты
+            printer.printRecMessage("********************************");
+            printer.printRecMessage("********************************");
+            printer.printRecMessage("ОСНОВАНИЕ СКИДКИ:");
+            printer.printRecMessage("   ДИСКОНТНАЯ КАРТА");
+            printer.printRecMessage("СУММА СКИДКИ"
+                    + getSpaces("СУММА СКИДКИ" + discount)
+                    + discount);
+            printer.printRecMessage("ПРОЦЕНТ СКИДКИ"
+                    + getSpaces("ПРОЦЕНТ СКИДКИ" + "=" + discountPercent + "%")
+                     + discountPercent + "%");
+            printer.printRecMessage("БАЛАНС КАРТЫ"
+                    + getSpaces("БАЛАНС КАРТЫ" + cardBalance)
+                    + "="+ cardBalance);
+            printer.printRecMessage("********************************");
+            printer.printRecMessage("********************************");
         }
     }
 
-    private void printSubTotal() {
-        long orderSum = order.getOrderAmount(); //не уверен
-        long orderSumDiscount = order.getOrderAmountWithBenefits();
-        // TODO Про предоплату наверное не нужно выводить, остальное выведи
+    private String getSpaces(String text){
+        int len = "********************************".length() - text.length();
+        StringBuilder str = new StringBuilder();
+        for(int i=0; i < len; i++){
+            str.append(" ");
+        }
+        return str.toString();
     }
 
-    private void printTotal(ShtrihFiscalPrinter printer) throws JposException, JSONException {
+    private void printSubTotal(ShtrihFiscalPrinter printer) throws JposException {
+        long orderSum = order.getOrderAmount(); //не уверен
+        long orderSumDiscount = order.getOrderAmountWithBenefits();
+        printer.printRecMessage("СУММА ЗАКАЗА");
+        printer.printRecMessage("   " + orderSum);
+        printer.printRecMessage("СУММА С УЧЕТОМ СКИДКИ");
+        printer.printRecMessage("   " + orderSumDiscount);
+    }
+
+    private void printTotal(ShtrihFiscalPrinter printer) throws Exception {
         JSONObject operationData = deepLinkData.getJSONObject("operation_data");
         long paymentCash = operationData.getInt("payment_cash") * 100;
         if (paymentCash != 0) {
