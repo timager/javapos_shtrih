@@ -42,6 +42,8 @@ public class Receipt {
         printer.beginFiscalReceipt(true);
         writeTags(printer);
         printItems(printer);
+        printDiscount();
+        printSubTotal();
         printTotal(printer);
         printer.endFiscalReceipt(false);
     }
@@ -60,6 +62,15 @@ public class Receipt {
             printer.printRecItem(serv.getServCode() + " " + serv.getServName(), priceDiscount, 0, 0, 0, unitName);
             printer.printRecItemAdjustment(FiscalPrinterConst.FPTR_AT_AMOUNT_DISCOUNT, "", discount, 0);
         }
+    }
+
+
+    private void printDiscount(){
+
+    }
+
+    private void printSubTotal() {
+
     }
 
     private void printTotal(ShtrihFiscalPrinter printer) throws JposException, JSONException {
