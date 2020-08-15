@@ -72,36 +72,29 @@ public class Receipt {
             printer.printRecMessage("********************************");
             printer.printRecMessage("ОСНОВАНИЕ СКИДКИ:");
             printer.printRecMessage("   " + order.getDocName());
-            printer.printRecMessage("СУММА СКИДКИ"
-                    + getSpaces("СУММА СКИДКИ" + "=" + discount)
-                    + "=" + discount);
-            printer.printRecMessage("ПРОЦЕНТ СКИДКИ"
-                    + getSpaces("ПРОЦЕНТ СКИДКИ" + "=" + discountPercent + "%")
-                    + "=" + discountPercent + "%");
-            printer.printRecMessage("БАЛАНС КАРТЫ"
-                    + getSpaces("БАЛАНС КАРТЫ" + "=" + cardBalance)
-                    + "=" + cardBalance);
+            printer.printRecMessage(makeSpacesFormatString("СУММА СКИДКИ", "=" + discount));
+            printer.printRecMessage(makeSpacesFormatString("ПРОЦЕНТ СКИДКИ", "=" + discountPercent + "%"));
+            printer.printRecMessage(makeSpacesFormatString("БАЛАНС КАРТЫ", "=" + cardBalance));
             printer.printRecMessage("********************************");
             printer.printRecMessage("********************************");
         }
     }
 
-    private String getSpaces(String text) {
-        int len = "********************************".length() - text.length();
-        StringBuilder str = new StringBuilder();
+    private String makeSpacesFormatString(String text1, String text2) {
+        int len = "********************************".length() - text1.length() - text2.length();
+        StringBuilder str = new StringBuilder(text1);
         for (int i = 0; i < len; i++) {
             str.append(" ");
         }
+        str.append(text2);
         return str.toString();
     }
 
     private void printSubTotal(ShtrihFiscalPrinter printer) throws JposException {
         long orderSum = order.getOrderAmount(); //не уверен
         long orderSumDiscount = order.getOrderAmountWithBenefits();
-        printer.printRecMessage("СУММА ЗАКАЗА");
-        printer.printRecMessage("   " + orderSum);
-        printer.printRecMessage("СУММА С УЧЕТОМ СКИДКИ");
-        printer.printRecMessage("   " + orderSumDiscount);
+        printer.printRecMessage(makeSpacesFormatString("СУММА ЗАКАЗА", "=" + orderSum));
+        printer.printRecMessage(makeSpacesFormatString("СУММА С УЧЕТОМ СКИДКИ", "=" + orderSumDiscount));
     }
 
     private void printTotal(ShtrihFiscalPrinter printer) throws Exception {
