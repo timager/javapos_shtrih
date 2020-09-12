@@ -58,7 +58,7 @@ public class Receipt {
             long discount = price - priceDiscount;
             int taxType = serv.getServTax();
             printer.printRecItem(serv.getServCode() + " " + serv.getServName(), price, 0, taxType, 0, unitName);
-            printer.printRecItemAdjustment(FiscalPrinterConst.FPTR_AT_AMOUNT_DISCOUNT, "", discount, 0);
+            printer.printRecItemAdjustment(FiscalPrinterConst.FPTR_AT_AMOUNT_DISCOUNT, "", discount, taxType);
             printer.printRecMessage("------------");
         }
     }
