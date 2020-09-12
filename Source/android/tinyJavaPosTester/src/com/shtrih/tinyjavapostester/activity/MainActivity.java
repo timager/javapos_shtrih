@@ -131,7 +131,7 @@ public class MainActivity extends AbstractActivity {
             showMessage(getMessageFromTrace(e.getStackTrace()));
         }
         final TransactionBody transactionBody = new TransactionBody(response.getOrder(), deepLinkData, kkmNumber, receiptNumber);
-        NetworkService.getInstance().getApi().createTransaction(transactionBody).enqueue(new Callback<TransactionResponse>() {
+        NetworkService.getInstance(this).getApi().createTransaction(transactionBody).enqueue(new Callback<TransactionResponse>() {
             @Override
             public void onResponse(Call<TransactionResponse> call, Response<TransactionResponse> response) {
                 sendResultToApi(exception, transactionBody.getPackUuid());
@@ -150,7 +150,7 @@ public class MainActivity extends AbstractActivity {
         if (exception != null) {
             confirmBody.setMessage(exception.getMessage());
             showMessage("ПРОИЗОШЛА ОШИБКА: \n" + exception.getMessage());
-            NetworkService.getInstance().getApi().sendReceiptError(confirmBody).enqueue(new Callback<ErrorResponse>() {
+            NetworkService.getInstance(this).getApi().sendReceiptError(confirmBody).enqueue(new Callback<ErrorResponse>() {
                 @Override
                 public void onResponse(Call<ErrorResponse> call, Response<ErrorResponse> response) {
                     showMessage("Результат с ошибкой отправлен");
@@ -162,7 +162,7 @@ public class MainActivity extends AbstractActivity {
                 }
             });
         } else {
-            NetworkService.getInstance().getApi().sendReceiptConfirm(confirmBody).enqueue(new Callback<ConfirmResponse>() {
+            NetworkService.getInstance(this).getApi().sendReceiptConfirm(confirmBody).enqueue(new Callback<ConfirmResponse>() {
                 @Override
                 public void onResponse(Call<ConfirmResponse> call, Response<ConfirmResponse> response) {
                     showMessage("Успешный результат отправлен");

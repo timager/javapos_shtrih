@@ -1,12 +1,18 @@
 apply plugin: 'idea'
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 30
+    buildToolsVersion "30.0.2"
+    ndkVersion "21.0.6113669"
+
     defaultConfig {
         applicationId "com.example.tinyjavaposttester"
         minSdkVersion 25
-        targetSdkVersion 27
+        targetSdkVersion 30
         versionCode 1
         versionName "$version"
         multiDexEnabled true
@@ -14,7 +20,7 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
-    dataBinding.enabled = true
+    buildFeatures.dataBinding = true
 
     signingConfigs {
         release {
@@ -40,6 +46,19 @@ android {
 //            outputFileName = "myapp-${variant.versionName}-${variant.name}.apk"
 //        }
 //    }
+
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+
+    packagingOptions {
+        pickFirst "META-INF/coroutines.kotlin_module"
+    }
+
+    compileOptions {
+        sourceCompatibility = '1.8'
+        targetCompatibility = '1.8'
+    }
 
     productFlavors {
     }
@@ -125,12 +144,9 @@ repositories {
 
 dependencies {
     //compile fileTree(include: ['*.jar'], dir: '../lib')
-    implementation 'com.android.support:multidex:1.0.3'
-    implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
-    implementation 'com.squareup.retrofit2:retrofit:2.4.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.6.2'
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation project(':FptrServiceAndroid')
-    implementation 'com.android.support:appcompat-v7:27.1.1'
-    implementation 'com.android.support:support-v4:27.1.1'
     implementation 'org.slf4j:slf4j-api:1.7.25'
     implementation 'com.github.tony19:logback-android-core:1.1.1-6'
     implementation('com.github.tony19:logback-android-classic:1.1.1-6') {
@@ -142,10 +158,27 @@ dependencies {
         exclude module: 'stax-api'
         exclude module: 'xpp3'
     })
-    // ViewModel and LiveData
-    implementation "android.arch.lifecycle:extensions:1.1.1"
-    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
-    annotationProcessor "android.arch.lifecycle:compiler:1.1.1"
+
+    implementation "androidx.activity:activity-ktx:1.2.0-alpha08"
+    implementation "androidx.appcompat:appcompat:1.3.0-alpha02"
+    implementation "androidx.collection:collection-ktx:1.1.0"
+    implementation "androidx.constraintlayout:constraintlayout:2.0.1"
+    implementation "androidx.core:core-ktx:1.5.0-alpha02"
+    implementation "androidx.fragment:fragment-ktx:1.3.0-alpha08"
+    implementation "androidx.lifecycle:lifecycle-livedata-core-ktx:2.3.0-alpha07"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.3.0-alpha07"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.3.0-alpha07"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.0-alpha07"
+    implementation "androidx.recyclerview:recyclerview:1.2.0-alpha05"
+    implementation "androidx.room:room-ktx:2.3.0-alpha02"
+    implementation "androidx.work:work-runtime-ktx:2.5.0-alpha01"
+    implementation "com.google.android.material:material:1.3.0-alpha02"
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
+
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.4.10"
+
+    debugImplementation "com.github.chuckerteam.chucker:library:3.2.0"
+    releaseImplementation "com.github.chuckerteam.chucker:library-no-op:3.2.0"
 }
 
 def apkName() {

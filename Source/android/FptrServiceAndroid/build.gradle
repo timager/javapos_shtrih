@@ -137,7 +137,6 @@ repositories {
 }
 
 dependencies {
-
     api 'jpos:jpos113:1.13'
     api 'zxing:zxing:3.2.2'
 
