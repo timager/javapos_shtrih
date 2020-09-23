@@ -130,7 +130,7 @@ public class MainActivity extends AbstractActivity {
         } catch (Exception e) {
             showMessage(getMessageFromTrace(e.getStackTrace()));
         }
-        final TransactionBody transactionBody = new TransactionBody(response.getOrder(), deepLinkData, kkmNumber, receiptNumber);
+        final TransactionBody transactionBody = createTransactionBody(response.getOrder(), deepLinkData, kkmNumber, receiptNumber);
         NetworkService.getInstance(this).getApi().createTransaction(transactionBody).enqueue(new Callback<TransactionResponse>() {
             @Override
             public void onResponse(Call<TransactionResponse> call, Response<TransactionResponse> response) {
@@ -142,6 +142,26 @@ public class MainActivity extends AbstractActivity {
                 showMessage("Произошла ошибка при создании транзакции: " + t.getMessage());
             }
         });
+    }
+
+    private TransactionBody createTransactionBody(OrderResponse.Order order, JSONObject deepLinkData, String kkmNumber, long receiptNumber) {
+        try {
+            if (isRefund()) {
+                return TransactionBody.createRefundServiceTransactionBody(order, deepLinkData, kkmNumber, receiptNumber);
+            } else {
+                return new TransactionBody(order, deepLinkData, kkmNumber, receiptNumber);
+            }
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private boolean isRefund() {
+        try {
+            return deepLinkData.getInt("operation_type") == 2;
+        } catch (JSONException e) {
+            return false;
+        }
     }
 
     private void sendResultToApi(Exception exception, String uuid) {

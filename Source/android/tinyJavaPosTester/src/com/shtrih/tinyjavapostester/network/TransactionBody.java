@@ -2,7 +2,6 @@ package com.shtrih.tinyjavapostester.network;
 
 import android.os.Build;
 
-import com.google.gson.Gson;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -10,6 +9,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class TransactionBody {
@@ -54,6 +55,15 @@ public class TransactionBody {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    public TransactionBody(Integer orderId, Integer userId, String departNumber, String token, String packUuid, String json) {
+        this.orderId = orderId;
+        this.userId = userId;
+        this.departNumber = departNumber;
+        this.token = token;
+        this.packUuid = packUuid;
+        this.json = json;
     }
 
     @SerializedName("order_id")
@@ -123,4 +133,83 @@ public class TransactionBody {
         this.json = json;
     }
 
+    public static TransactionBody createRefundServiceTransactionBody(OrderResponse.Order order, JSONObject deepLinkData, String kktNumber, long receiptNumber) throws JSONException {
+        Integer orderId = order.getOrderId();
+        String packUuid = UUID.randomUUID().toString();
+        int paymentType = deepLinkData.getJSONObject("operation_data").getInt("pay_type");
+
+        List<Integer> refundServiceIdList = convertToList(deepLinkData.getJSONObject("operation_data").getJSONArray("servs"));
+        List<OrderResponse.Serv> refundServiceList = new ArrayList<>();
+        for (OrderResponse.Serv serv : order.getServs()) {
+            if (refundServiceIdList.contains(serv.getServId())) {
+                refundServiceList.add(serv);
+            }
+        }
+
+        int sumPayment = 0;
+        for (OrderResponse.Serv serv : refundServiceList) {
+            sumPayment += Long.parseLong(serv.getServCost().replace(".", "")) / 100;
+        }
+        try {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("pack_uuid", packUuid);
+            jsonObject.put("HST_Name", Build.DEVICE);
+            jsonObject.put("KKM", kktNumber);
+            jsonObject.put("check_num", receiptNumber);
+            jsonObject.put("operation_type", deepLinkData.getInt("operation_type"));
+            jsonObject.put("order_id", orderId);
+            JSONArray operationPayments = new JSONArray();
+
+            if (paymentType == 1) {
+                JSONObject transactionPayCash = new JSONObject();
+                transactionPayCash.put("pay_type", 1);
+                transactionPayCash.put("pay_sum", -sumPayment);
+                transactionPayCash.put("pay_id", 1);
+                operationPayments.put(transactionPayCash);
+            } else if (paymentType == 2) {
+                JSONObject transactionPayCard = new JSONObject();
+                transactionPayCard.put("pay_type", 2);
+                transactionPayCard.put("pay_sum", -sumPayment);
+                transactionPayCard.put("pay_id", 1);
+                operationPayments.put(transactionPayCard);
+            }
+
+            jsonObject.put("operation_payments", operationPayments);
+
+            JSONArray servs = new JSONArray();
+
+            for (int i = 0; i < refundServiceList.size(); i++) {
+                OrderResponse.Serv serv = refundServiceList.get(i);
+                JSONObject service = new JSONObject();
+                service.put("serv_id", serv.getServId());
+                service.put("serv_current_pay", "-" + serv.getServCostD());
+                service.put("pay_id", 1);
+                servs.put(service);
+            }
+            jsonObject.put("Servs", servs);
+
+            String json = jsonObject.toString();
+            Integer userId = deepLinkData.getInt("user_id");
+            String departNumber = deepLinkData.getString("depart_number");
+            String token = deepLinkData.getString("token");
+
+            return new TransactionBody(orderId, userId, departNumber, token, packUuid, json);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    private static List<Integer> convertToList(JSONArray array) {
+        List<Integer> resultList = new ArrayList<>();
+        for (int i = 0; i < array.length(); i++) {
+            try {
+                Integer value = array.getInt(i);
+                resultList.add(value);
+            } catch (Exception ignored) {
+            }
+        }
+        return resultList;
+    }
 }
