@@ -173,16 +173,19 @@ public class Receipt {
 
     private void printRefundTotal(ShtrihFiscalPrinter printer, List<OrderResponse.Serv> refundServiceList) throws Exception {
         int paymentType = deepLinkData.getJSONObject("operation_data").getInt("pay_type");
-        int sumPayment = 0;
+        double sumPayment = 0;
 
         for (OrderResponse.Serv serv : refundServiceList) {
-            sumPayment += Long.parseLong(serv.getServCost().replace(".", "")) / 100;
+            sumPayment += Double.parseDouble(serv.getServCost());
         }
 
+        // Терминал принимает сумму в копейках
+        long sumPennyPayment = (long) (sumPayment * 100);
+
         if (paymentType == 1) {
-            printer.printRecTotal(sumPayment, sumPayment, "0");
+            printer.printRecTotal(sumPennyPayment, sumPennyPayment, "0");
         } else if (paymentType == 2) {
-            printer.printRecTotal(sumPayment, sumPayment, "2");
+            printer.printRecTotal(sumPennyPayment, sumPennyPayment, "2");
         }
     }
 
