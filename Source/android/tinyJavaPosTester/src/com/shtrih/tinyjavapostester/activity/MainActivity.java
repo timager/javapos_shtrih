@@ -149,7 +149,7 @@ public class MainActivity extends AbstractActivity {
             if (isRefund()) {
                 return TransactionBody.createRefundServiceTransactionBody(order, deepLinkData, kkmNumber, receiptNumber);
             } else {
-                return new TransactionBody(order, deepLinkData, kkmNumber, receiptNumber);
+                return TransactionBody.createSaleTransactionBody(order, deepLinkData, kkmNumber, receiptNumber);
             }
         } catch (Exception e) {
             return null;

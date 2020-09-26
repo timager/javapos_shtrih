@@ -14,49 +14,6 @@ import java.util.List;
 import java.util.UUID;
 
 public class TransactionBody {
-
-    public TransactionBody(OrderResponse.Order order, JSONObject deepLinkData, String kktNumber, long receiptNumber) {
-        orderId = order.getOrderId();
-        packUuid = UUID.randomUUID().toString();
-
-        try {
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("pack_uuid", packUuid);
-            jsonObject.put("HST_Name", Build.DEVICE);
-            jsonObject.put("KKM", kktNumber);
-            jsonObject.put("check_num", receiptNumber);
-            jsonObject.put("operation_type", deepLinkData.getInt("operation_type"));
-            jsonObject.put("order_id", orderId);
-            JSONArray operationPayments = new JSONArray();
-            JSONObject operationData = deepLinkData.getJSONObject("operation_data");
-            int paymentCash = operationData.getInt("payment_cash");
-            JSONObject transactionPayCash = new JSONObject();
-            transactionPayCash.put("pay_type", 1);
-            transactionPayCash.put("pay_sum", paymentCash);
-            operationPayments.put(transactionPayCash);
-            int paymentCard = operationData.getInt("payment_card");
-            JSONObject transactionPayCard = new JSONObject();
-            transactionPayCard.put("pay_type", 2);
-            transactionPayCard.put("pay_sum", paymentCard);
-            operationPayments.put(transactionPayCard);
-            jsonObject.put("operation_payments", operationPayments);
-            JSONArray servs = new JSONArray();
-            for (OrderResponse.Serv serv : order.getServs()) {
-                JSONObject transactionServ = new JSONObject();
-                transactionServ.put("serv_id", serv.getServId());
-                transactionServ.put("serv_current_pay", serv.getServCostD());
-                servs.put(transactionServ);
-            }
-            jsonObject.put("Servs", servs);
-            json = jsonObject.toString();
-            userId = deepLinkData.getInt("user_id");
-            departNumber = deepLinkData.getString("depart_number");
-            token = deepLinkData.getString("token");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
     public TransactionBody(Integer orderId, Integer userId, String departNumber, String token, String packUuid, String json) {
         this.orderId = orderId;
         this.userId = userId;
@@ -133,6 +90,52 @@ public class TransactionBody {
         this.json = json;
     }
 
+    public static TransactionBody createSaleTransactionBody(OrderResponse.Order order, JSONObject deepLinkData, String kktNumber, long receiptNumber) {
+        Integer orderId = order.getOrderId();
+        String packUuid = UUID.randomUUID().toString();
+
+        try {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("pack_uuid", packUuid);
+            jsonObject.put("HST_Name", Build.DEVICE);
+            jsonObject.put("KKM", kktNumber);
+            jsonObject.put("check_num", receiptNumber);
+            jsonObject.put("operation_type", deepLinkData.getInt("operation_type"));
+            jsonObject.put("order_id", orderId);
+            JSONArray operationPayments = new JSONArray();
+            JSONObject operationData = deepLinkData.getJSONObject("operation_data");
+            int paymentCash = operationData.getInt("payment_cash");
+            JSONObject transactionPayCash = new JSONObject();
+            transactionPayCash.put("pay_type", 1);
+            transactionPayCash.put("pay_sum", paymentCash);
+            operationPayments.put(transactionPayCash);
+            int paymentCard = operationData.getInt("payment_card");
+            JSONObject transactionPayCard = new JSONObject();
+            transactionPayCard.put("pay_type", 2);
+            transactionPayCard.put("pay_sum", paymentCard);
+            operationPayments.put(transactionPayCard);
+            jsonObject.put("operation_payments", operationPayments);
+            JSONArray servs = new JSONArray();
+            for (OrderResponse.Serv serv : order.getServs()) {
+                JSONObject transactionServ = new JSONObject();
+                transactionServ.put("serv_id", serv.getServId());
+                transactionServ.put("serv_current_pay", serv.getServCostD());
+                servs.put(transactionServ);
+            }
+            jsonObject.put("Servs", servs);
+            String json = jsonObject.toString();
+            Integer userId = deepLinkData.getInt("user_id");
+            String departNumber = deepLinkData.getString("depart_number");
+            String token = deepLinkData.getString("token");
+
+            return new TransactionBody(orderId, userId, departNumber, token, packUuid, json);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
     public static TransactionBody createRefundServiceTransactionBody(OrderResponse.Order order, JSONObject deepLinkData, String kktNumber, long receiptNumber) throws JSONException {
         Integer orderId = order.getOrderId();
         String packUuid = UUID.randomUUID().toString();
@@ -146,9 +149,9 @@ public class TransactionBody {
             }
         }
 
-        int sumPayment = 0;
+        double sumPayment = 0;
         for (OrderResponse.Serv serv : refundServiceList) {
-            sumPayment += Long.parseLong(serv.getServCost().replace(".", "")) / 100;
+            sumPayment += Double.parseDouble(serv.getServCost());
         }
         try {
             JSONObject jsonObject = new JSONObject();
