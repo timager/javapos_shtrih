@@ -146,22 +146,45 @@ public class MainActivity extends AbstractActivity {
 
     private TransactionBody createTransactionBody(OrderResponse.Order order, JSONObject deepLinkData, String kkmNumber, long receiptNumber) {
         try {
-            if (isRefund()) {
-                return TransactionBody.createRefundServiceTransactionBody(order, deepLinkData, kkmNumber, receiptNumber);
-            } else {
+            if (isSale()) {
                 return TransactionBody.createSaleTransactionBody(order, deepLinkData, kkmNumber, receiptNumber);
+            } else if (isRefundService()) {
+                return TransactionBody.createRefundServiceTransactionBody(order, deepLinkData, kkmNumber, receiptNumber);
+            } else if (isRefundTransaction()) {
+                return TransactionBody.createRefundTransactionTransactionBody(order, deepLinkData, kkmNumber, receiptNumber);
+            } else if (isRefundByReason()) {
+                return TransactionBody.createRefundByReasonTransactionBody(order, deepLinkData, kkmNumber, receiptNumber);
             }
-        } catch (Exception e) {
-            return null;
-        }
+        } catch (Exception e) { }
+
+        return null;
+    }
+
+
+    private boolean isRefundService() {
+        return isRefund()
+                && deepLinkData.optJSONObject("operation_data") != null
+                && deepLinkData.optJSONObject("operation_data").opt("servs") != null;
+    }
+
+    private boolean isRefundTransaction() {
+        return isRefund()
+                && deepLinkData.optJSONObject("operation_data") != null
+                && deepLinkData.optJSONObject("operation_data").opt("transactions") != null;
+    }
+
+    private boolean isRefundByReason() {
+        return isRefund()
+                && deepLinkData.optJSONObject("operation_data") != null
+                && deepLinkData.optJSONObject("operation_data").opt("claim") != null;
+    }
+
+    private boolean isSale() {
+        return deepLinkData.optInt("operation_type") == 1;
     }
 
     private boolean isRefund() {
-        try {
-            return deepLinkData.getInt("operation_type") == 2;
-        } catch (JSONException e) {
-            return false;
-        }
+        return deepLinkData.optInt("operation_type") == 2;
     }
 
     private void sendResultToApi(Exception exception, String uuid) {

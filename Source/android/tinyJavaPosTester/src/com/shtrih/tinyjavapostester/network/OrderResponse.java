@@ -97,7 +97,7 @@ public class OrderResponse implements Serializable {
         private List<Serv> servs = null;
         @SerializedName("Pay_History")
         @Expose
-        private List<Object> payHistory = null;
+        private List<TransactionHistoryItem> payHistory = null;
 
         public Integer getOrderId() {
             return orderId;
@@ -259,11 +259,11 @@ public class OrderResponse implements Serializable {
             this.servs = servs;
         }
 
-        public List<Object> getPayHistory() {
+        public List<TransactionHistoryItem> getPayHistory() {
             return payHistory;
         }
 
-        public void setPayHistory(List<Object> payHistory) {
+        public void setPayHistory(List<TransactionHistoryItem> payHistory) {
             this.payHistory = payHistory;
         }
 

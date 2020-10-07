@@ -8,6 +8,7 @@ import com.shtrih.fiscalprinter.command.LongPrinterStatus;
 import com.shtrih.jpos.fiscalprinter.JposExceptionHandler;
 import com.shtrih.jpos.fiscalprinter.SmFptrConst;
 import com.shtrih.tinyjavapostester.network.OrderResponse;
+import com.shtrih.tinyjavapostester.network.TransactionHistoryItem;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -45,15 +46,41 @@ public class Receipt {
         printer.setFontNumber(1);
         printReceiptHeader(printer);
 
-        if (isRefundService()) {
-            printRefundService(printer);
-        } else {
+        if (isSale()) {
             printSales(printer);
+        } else if (isRefundService()) {
+            printRefundService(printer);
+        } else if (isRefundTransaction()) {
+            printRefundTransaction(printer);
+        } else if (isRefundByReason()) {
+            printRefundByReason(printer);
         }
     }
 
-    private boolean isRefundService() throws JSONException {
-        return deepLinkData.getInt("operation_type") == 2;
+    private boolean isRefundService() {
+        return isRefund()
+                && deepLinkData.optJSONObject("operation_data") != null
+                && deepLinkData.optJSONObject("operation_data").opt("servs") != null;
+    }
+
+    private boolean isRefundTransaction() {
+        return isRefund()
+                && deepLinkData.optJSONObject("operation_data") != null
+                && deepLinkData.optJSONObject("operation_data").opt("transactions") != null;
+    }
+
+    private boolean isRefundByReason() {
+        return isRefund()
+                && deepLinkData.optJSONObject("operation_data") != null
+                && deepLinkData.optJSONObject("operation_data").opt("claim") != null;
+    }
+
+    private boolean isSale() {
+        return deepLinkData.optInt("operation_type") == 1;
+    }
+
+    private boolean isRefund() {
+        return deepLinkData.optInt("operation_type") == 2;
     }
 
     private void printSales(ShtrihFiscalPrinter printer) throws Exception {
@@ -88,6 +115,38 @@ public class Receipt {
         printer.endFiscalReceipt(false);
     }
 
+    private void printRefundTransaction(ShtrihFiscalPrinter printer) throws Exception {
+        int fiscalReceiptType = deepLinkData.getJSONObject("operation_data").getInt("fiscal");
+
+        List<Integer> transactionRefundIdList = convertToList(deepLinkData.getJSONObject("operation_data").getJSONArray("transactions"));
+        double sumRefund = 0;
+        for (TransactionHistoryItem transactionHistoryItem : order.getPayHistory()) {
+            if (transactionRefundIdList.contains(transactionHistoryItem.getId())) {
+                sumRefund += transactionHistoryItem.getSum();
+            }
+        }
+
+        printer.setParameter(SmFptrConst.SMFPTR_DIO_PARAM_ITEM_PAYMENT_TYPE, fiscalReceiptType);
+        printer.setFiscalReceiptType(FiscalPrinterConst.FPTR_RT_REFUND);
+        printer.beginFiscalReceipt(true);
+        writeTags(printer);
+        printRefundItemsByTransaction(printer, sumRefund, UNIT_NAME_REFUND, fiscalReceiptType);
+        printRefundSubTotal(printer, fiscalReceiptType);
+        printRefundTotalByTransaction(printer, sumRefund);
+        printer.endFiscalReceipt(false);
+    }
+
+    private void printRefundByReason(ShtrihFiscalPrinter printer) throws Exception {
+        int fiscalReceiptType = deepLinkData.getJSONObject("operation_data").getInt("fiscal");
+
+        printer.setParameter(SmFptrConst.SMFPTR_DIO_PARAM_ITEM_PAYMENT_TYPE, fiscalReceiptType);
+        printer.setFiscalReceiptType(FiscalPrinterConst.FPTR_RT_REFUND);
+        printer.beginFiscalReceipt(true);
+        writeTags(printer);
+        printRefundTotalByReason(printer);
+        printer.endFiscalReceipt(false);
+    }
+
     private void writeTags(ShtrihFiscalPrinter printer) throws Exception {
         printer.fsWriteTag(1021, deepLinkData.getString("username"));
     }
@@ -116,6 +175,34 @@ public class Receipt {
             printer.printRecMessage("------------");
         }
     }
+
+    private void printRefundItemsByTransaction(ShtrihFiscalPrinter printer, double sumRefund, String unitName, int fiscalReceiptType) throws Exception {
+        // Коэфициент между суммой возврата и общей суммой
+        double sumRate = sumRefund / order.getOrderAmount();
+
+        List<OrderResponse.Serv> servs = order.getServs();
+        long sumPennyPrintItem = 0;
+
+        for (int i = 0; i < servs.size(); i++) {
+            OrderResponse.Serv serv = servs.get(i);
+            long pricePenny = Long.parseLong(serv.getServCost().replace(".", "")) / 100;
+            int taxType = serv.getServTax();
+
+            long finalPricePenny;
+            // Последняя цена высчитывается из суммы возврата - сумма всех позиций в чеке, кроме последнего
+            if (i != servs.size() - 1) {
+                finalPricePenny = (long) (sumRate * pricePenny);
+                sumPennyPrintItem += finalPricePenny;
+            } else {
+                finalPricePenny = ((long) sumRefund * 100) - sumPennyPrintItem;
+            }
+
+            printer.printRecItemRefund(serv.getServCode() + " " + serv.getServName(), finalPricePenny, 0, taxType, 0, unitName);
+            printPaymentType(printer, fiscalReceiptType);
+            printer.printRecMessage("------------");
+        }
+    }
+
 
     private void printDiscount(ShtrihFiscalPrinter printer) throws JposException {
         if (order.getOrderDiscountPercent() > 0) {
@@ -187,6 +274,27 @@ public class Receipt {
         } else if (paymentType == 2) {
             printer.printRecTotal(sumPennyPayment, sumPennyPayment, "2");
         }
+    }
+
+    private void printRefundTotalByTransaction(ShtrihFiscalPrinter printer, double sumRefund) throws Exception  {
+        int paymentType = 1;
+
+        // Терминал принимает сумму в копейках
+        long sumPennyPayment = (long) (sumRefund * 100);
+
+        if (paymentType == 1) {
+            printer.printRecTotal(sumPennyPayment, sumPennyPayment, "0");
+        } else if (paymentType == 2) {
+            printer.printRecTotal(sumPennyPayment, sumPennyPayment, "2");
+        }
+    }
+
+    private void printRefundTotalByReason(ShtrihFiscalPrinter printer) throws JSONException, JposException {
+        String reason = deepLinkData.getJSONObject("operation_data").getString("claim");
+        long sumPennyPayment = deepLinkData.getJSONObject("operation_data").getLong("sum") * 100;
+
+        printer.printRecRefund(reason, sumPennyPayment, 0);
+        printer.printRecTotal(sumPennyPayment, sumPennyPayment, "0");
     }
 
     private void prepare(ShtrihFiscalPrinter printer) throws JposException {
