@@ -307,9 +307,9 @@ public class Receipt {
 
     private void printPartitionSaleSubTotal(ShtrihFiscalPrinter printer) throws JposException, JSONException {
         double orderSum = getDeepLinkSumPaymentSale();
-        long orderSumDiscount = order.getOrderAmountWithBenefits();
+        //long orderSumDiscount = order.getOrderAmountWithBenefits();
         printer.printRecMessage(makeSpacesFormatString("СУММА ЗАКАЗА", "=" + orderSum));
-        printer.printRecMessage(makeSpacesFormatString("СУММА С УЧЕТОМ СКИДКИ", "=" + orderSumDiscount));
+        printer.printRecMessage(makeSpacesFormatString("СУММА С УЧЕТОМ СКИДКИ", "=" + orderSum));
     }
 
     private void printRefundSubTotal(ShtrihFiscalPrinter printer, Integer paymentType) throws JposException {
