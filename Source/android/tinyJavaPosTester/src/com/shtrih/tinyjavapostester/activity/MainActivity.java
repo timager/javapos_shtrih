@@ -146,8 +146,10 @@ public class MainActivity extends AbstractActivity {
 
     private TransactionBody createTransactionBody(OrderResponse.Order order, JSONObject deepLinkData, String kkmNumber, long receiptNumber) {
         try {
-            if (isSale()) {
+            if (isFullSale()) {
                 return TransactionBody.createSaleTransactionBody(order, deepLinkData, kkmNumber, receiptNumber);
+            } else if (isPartitionSale()) {
+                return TransactionBody.createPartitionSaleTransactionBody(order, deepLinkData, kkmNumber, receiptNumber);
             } else if (isRefundService()) {
                 return TransactionBody.createRefundServiceTransactionBody(order, deepLinkData, kkmNumber, receiptNumber);
             } else if (isRefundTransaction()) {
@@ -160,6 +162,29 @@ public class MainActivity extends AbstractActivity {
         return null;
     }
 
+    private boolean isFullSale() throws JSONException {
+        return isSale()
+                && getDeepLinkSumPaymentSale() == getOrderSum();
+
+    }
+
+    private boolean isPartitionSale() throws JSONException {
+        return isSale()
+                && getDeepLinkSumPaymentSale() != getOrderSum();
+    }
+
+    private double getDeepLinkSumPaymentSale() throws JSONException {
+        JSONObject operationData = deepLinkData.getJSONObject("operation_data");
+
+        double paymentCash = operationData.getDouble("payment_cash");
+        double paymentCard = operationData.getDouble("payment_card");
+
+        return paymentCash + paymentCard;
+    }
+
+    private double getOrderSum() {
+        return response.getOrder().getOrderAmount();
+    }
 
     private boolean isRefundService() {
         return isRefund()

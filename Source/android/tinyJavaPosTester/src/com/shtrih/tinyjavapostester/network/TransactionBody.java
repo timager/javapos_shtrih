@@ -136,6 +136,72 @@ public class TransactionBody {
         return null;
     }
 
+    public static TransactionBody createPartitionSaleTransactionBody(OrderResponse.Order order, JSONObject deepLinkData, String kktNumber, long receiptNumber) throws JSONException {
+        Integer orderId = order.getOrderId();
+        String packUuid = UUID.randomUUID().toString();
+
+        double partitionSumSale = getDeepLinkSumPaymentSale(deepLinkData);
+        double sumRate = partitionSumSale / order.getOrderAmount();
+
+        try {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("pack_uuid", packUuid);
+            jsonObject.put("HST_Name", Build.DEVICE);
+            jsonObject.put("KKM", kktNumber);
+            jsonObject.put("check_num", receiptNumber);
+            jsonObject.put("operation_type", deepLinkData.getInt("operation_type"));
+            jsonObject.put("order_id", orderId);
+            JSONArray operationPayments = new JSONArray();
+            JSONObject operationData = deepLinkData.getJSONObject("operation_data");
+            int paymentCash = operationData.getInt("payment_cash");
+            JSONObject transactionPayCash = new JSONObject();
+            transactionPayCash.put("pay_type", 1);
+            transactionPayCash.put("pay_sum", paymentCash);
+            operationPayments.put(transactionPayCash);
+            int paymentCard = operationData.getInt("payment_card");
+            JSONObject transactionPayCard = new JSONObject();
+            transactionPayCard.put("pay_type", 2);
+            transactionPayCard.put("pay_sum", paymentCard);
+            operationPayments.put(transactionPayCard);
+            jsonObject.put("operation_payments", operationPayments);
+            JSONArray servs = new JSONArray();
+
+            double sumHandleItem = 0;
+            for (int i = 0; i < order.getServs().size(); i++) {
+                OrderResponse.Serv serv = order.getServs().get(i);
+
+                double priceService = Double.parseDouble(serv.getServCostD());
+
+                double finalPrice;
+                // Последняя цена высчитывается из суммы возврата - сумма всех позиций в чеке, кроме последнего
+                if (i != order.getServs().size() - 1) {
+                    finalPrice = sumRate * priceService;
+                    sumHandleItem += finalPrice;
+                } else {
+                    finalPrice = partitionSumSale - sumHandleItem;
+                }
+
+                JSONObject service = new JSONObject();
+                service.put("serv_id", serv.getServId());
+                service.put("serv_current_pay", "-" + finalPrice);
+                service.put("pay_id", 1);
+                servs.put(service);
+            }
+
+            jsonObject.put("Servs", servs);
+            String json = jsonObject.toString();
+            Integer userId = deepLinkData.getInt("user_id");
+            String departNumber = deepLinkData.getString("depart_number");
+            String token = deepLinkData.getString("token");
+
+            return new TransactionBody(orderId, userId, departNumber, token, packUuid, json);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
     public static TransactionBody createRefundServiceTransactionBody(OrderResponse.Order order, JSONObject deepLinkData, String kktNumber, long receiptNumber) throws JSONException {
         Integer orderId = order.getOrderId();
         String packUuid = UUID.randomUUID().toString();
@@ -326,6 +392,15 @@ public class TransactionBody {
         }
 
         return null;
+    }
+
+    private static double getDeepLinkSumPaymentSale(JSONObject deepLinkData) throws JSONException {
+        JSONObject operationData = deepLinkData.getJSONObject("operation_data");
+
+        double paymentCash = operationData.getDouble("payment_cash");
+        double paymentCard = operationData.getDouble("payment_card");
+
+        return paymentCash + paymentCard;
     }
 
     private static List<Integer> convertToList(JSONArray array) {

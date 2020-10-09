@@ -46,8 +46,10 @@ public class Receipt {
         printer.setFontNumber(1);
         printReceiptHeader(printer);
 
-        if (isSale()) {
+        if (isFullSale()) {
             printSales(printer);
+        } else if (isPartitionSale()) {
+            printPartitionSales(printer);
         } else if (isRefundService()) {
             printRefundService(printer);
         } else if (isRefundTransaction()) {
@@ -79,6 +81,30 @@ public class Receipt {
         return deepLinkData.optInt("operation_type") == 1;
     }
 
+    private boolean isFullSale() throws JSONException {
+        return isSale()
+                && getDeepLinkSumPaymentSale() == getOrderSum();
+
+    }
+
+    private boolean isPartitionSale() throws JSONException {
+        return isSale()
+                && getDeepLinkSumPaymentSale() != getOrderSum();
+    }
+
+    private double getDeepLinkSumPaymentSale() throws JSONException {
+        JSONObject operationData = deepLinkData.getJSONObject("operation_data");
+
+        double paymentCash = operationData.getDouble("payment_cash");
+        double paymentCard = operationData.getDouble("payment_card");
+
+        return paymentCash + paymentCard;
+    }
+
+    private double getOrderSum() {
+        return order.getOrderAmount();
+    }
+
     private boolean isRefund() {
         return deepLinkData.optInt("operation_type") == 2;
     }
@@ -90,6 +116,19 @@ public class Receipt {
         printItems(printer, order.getServs(), UNIT_NAME_SALE);
         printDiscount(printer);
         printSubTotal(printer);
+        printTotal(printer);
+        printer.endFiscalReceipt(false);
+    }
+
+    private void printPartitionSales(ShtrihFiscalPrinter printer) throws Exception {
+        double deepLinkSum = getDeepLinkSumPaymentSale();
+
+        printer.setFiscalReceiptType(FiscalPrinterConst.FPTR_RT_SALES);
+        printer.beginFiscalReceipt(true);
+        writeTags(printer);
+        printPartitionSaleItems(printer, deepLinkSum, order.getServs(), UNIT_NAME_SALE);
+        printDiscount(printer);
+        printPartitionSaleSubTotal(printer);
         printTotal(printer);
         printer.endFiscalReceipt(false);
     }
@@ -159,6 +198,34 @@ public class Receipt {
             int taxType = serv.getServTax();
             printer.printRecItem(serv.getServCode() + " " + serv.getServName(), price, 0, taxType, 0, unitName);
             printer.printRecItemAdjustment(FiscalPrinterConst.FPTR_AT_AMOUNT_DISCOUNT, "", discount, taxType);
+            printer.printRecMessage("------------");
+        }
+    }
+
+    private void printPartitionSaleItems(ShtrihFiscalPrinter printer, double partitionSum, List<OrderResponse.Serv> items, String unitName) throws JposException {
+        // Коэфициент между суммой возврата и общей суммой
+        double sumRate = partitionSum / order.getOrderAmount();
+
+        long sumPennyPrintItem = 0;
+        for (int i = 0; i < items.size(); i++) {
+            OrderResponse.Serv serv = items.get(i);
+
+            long pricePenny = Long.parseLong(serv.getServCost().replace(".", "")) / 100;
+            long priceWithDiscountPenny = Long.parseLong(serv.getServCostD().replace(".", "")) / 100;
+            long discountPenny = pricePenny - priceWithDiscountPenny;
+            int taxType = serv.getServTax();
+
+            long finalPriceWithDiscountPenny;
+            // Последняя цена высчитывается из суммы возврата - сумма всех позиций в чеке, кроме последнего
+            if (i != items.size() - 1) {
+                finalPriceWithDiscountPenny = (long) (sumRate * priceWithDiscountPenny);
+                sumPennyPrintItem += finalPriceWithDiscountPenny;
+            } else {
+                finalPriceWithDiscountPenny = ((long) partitionSum * 100) - sumPennyPrintItem;
+            }
+
+            printer.printRecItem(serv.getServCode() + " " + serv.getServName(), finalPriceWithDiscountPenny, 0, taxType, 0, unitName);
+            printer.printRecItemAdjustment(FiscalPrinterConst.FPTR_AT_AMOUNT_DISCOUNT, "", discountPenny, taxType);
             printer.printRecMessage("------------");
         }
     }
@@ -238,6 +305,13 @@ public class Receipt {
         printer.printRecMessage(makeSpacesFormatString("СУММА С УЧЕТОМ СКИДКИ", "=" + orderSumDiscount));
     }
 
+    private void printPartitionSaleSubTotal(ShtrihFiscalPrinter printer) throws JposException, JSONException {
+        double orderSum = getDeepLinkSumPaymentSale();
+        long orderSumDiscount = order.getOrderAmountWithBenefits();
+        printer.printRecMessage(makeSpacesFormatString("СУММА ЗАКАЗА", "=" + orderSum));
+        printer.printRecMessage(makeSpacesFormatString("СУММА С УЧЕТОМ СКИДКИ", "=" + orderSumDiscount));
+    }
+
     private void printRefundSubTotal(ShtrihFiscalPrinter printer, Integer paymentType) throws JposException {
         long orderSum = order.getOrderAmount(); //не уверен
         long orderSumDiscount = order.getOrderAmountWithBenefits();
@@ -276,7 +350,7 @@ public class Receipt {
         }
     }
 
-    private void printRefundTotalByTransaction(ShtrihFiscalPrinter printer, double sumRefund) throws Exception  {
+    private void printRefundTotalByTransaction(ShtrihFiscalPrinter printer, double sumRefund) throws Exception {
         int paymentType = 1;
 
         // Терминал принимает сумму в копейках
