@@ -5,14 +5,13 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
 android {
-    compileSdkVersion 30
-    buildToolsVersion "30.0.2"
-    ndkVersion "21.0.6113669"
+    compileSdkVersion 28
+    buildToolsVersion "28.0.3"
 
     defaultConfig {
         applicationId "com.example.tinyjavaposttester"
         minSdkVersion 25
-        targetSdkVersion 30
+        targetSdkVersion 28
         versionCode 5
         versionName "$version"
         multiDexEnabled true
