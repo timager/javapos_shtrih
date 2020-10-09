@@ -12,7 +12,7 @@ android {
         applicationId "com.example.tinyjavaposttester"
         minSdkVersion 25
         targetSdkVersion 28
-        versionCode 5
+        versionCode 6
         versionName "$version"
         multiDexEnabled true
 
