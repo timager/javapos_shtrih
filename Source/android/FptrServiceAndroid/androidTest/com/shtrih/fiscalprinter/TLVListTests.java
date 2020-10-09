@@ -1,6 +1,6 @@
 package com.shtrih.fiscalprinter;
 
-import android.support.test.runner.AndroidJUnit4;
+import androidx.test.runner.AndroidJUnit4;
 
 import com.shtrih.fiscalprinter.command.TLVList;
 import org.junit.Test;
