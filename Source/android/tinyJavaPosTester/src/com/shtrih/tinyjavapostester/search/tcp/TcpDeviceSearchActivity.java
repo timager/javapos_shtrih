@@ -1,10 +1,9 @@
 package com.shtrih.tinyjavapostester.search.tcp;
 
+import android.arch.lifecycle.ViewModelProviders;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.databinding.DataBindingUtil;
-import androidx.lifecycle.ViewModelProviders;
+import android.support.v7.app.AppCompatActivity;
 
 import com.shtrih.tinyjavapostester.R;
 import com.shtrih.tinyjavapostester.databinding.ActivityTcpDeviceSearchBinding;

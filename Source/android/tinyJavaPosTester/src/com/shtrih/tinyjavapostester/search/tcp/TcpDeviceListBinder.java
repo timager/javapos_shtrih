@@ -1,11 +1,10 @@
 package com.shtrih.tinyjavapostester.search.tcp;
 
+import android.databinding.BindingAdapter;
+import android.databinding.ObservableArrayList;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-
-import androidx.databinding.BindingAdapter;
-import androidx.databinding.ObservableArrayList;
 
 public class TcpDeviceListBinder {
 

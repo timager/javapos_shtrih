@@ -2,11 +2,10 @@ package com.shtrih.tinyjavapostester.search.tcp;
 
 import android.app.Activity;
 import android.app.Application;
+import android.arch.lifecycle.AndroidViewModel;
 import android.content.Intent;
-
-import androidx.annotation.NonNull;
-import androidx.databinding.ObservableArrayList;
-import androidx.lifecycle.AndroidViewModel;
+import android.databinding.ObservableArrayList;
+import android.support.annotation.NonNull;
 
 import java.io.IOException;
 import java.net.DatagramPacket;

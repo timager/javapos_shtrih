@@ -1,13 +1,12 @@
 package com.shtrih.tinyjavapostester.search.tcp;
 
 import android.content.Context;
+import android.databinding.DataBindingUtil;
+import android.databinding.ObservableArrayList;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-
-import androidx.databinding.DataBindingUtil;
-import androidx.databinding.ObservableArrayList;
 
 import com.shtrih.tinyjavapostester.R;
 import com.shtrih.tinyjavapostester.databinding.TcpDeviceItemLayoutBinding;

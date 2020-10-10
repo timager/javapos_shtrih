@@ -278,8 +278,8 @@ public class TransactionBody {
         List<Integer> transactionRefundIdList = convertToList(deepLinkData.getJSONObject("operation_data").getJSONArray("transactions"));
         double sumRefund = 0;
         for (TransactionHistoryItem transactionHistoryItem : order.getPayHistory()) {
-            if (transactionRefundIdList.contains(transactionHistoryItem.getId())) {
-                sumRefund += transactionHistoryItem.getSum();
+            if (transactionRefundIdList.contains(transactionHistoryItem.id)) {
+                sumRefund += transactionHistoryItem.sum;
             }
         }
 

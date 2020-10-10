@@ -1,12 +1,12 @@
 package com.shtrih.tinyjavapostester;
 
 import android.app.Application;
-
-import androidx.databinding.ObservableField;
-import androidx.lifecycle.AndroidViewModel;
+import android.arch.lifecycle.AndroidViewModel;
+import android.databinding.ObservableField;
 
 import com.shtrih.fiscalprinter.ShtrihFiscalPrinter;
 import com.shtrih.util.StaticContext;
+import com.shtrih.util.SysUtils;
 
 import jpos.FiscalPrinter;
 
