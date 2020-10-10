@@ -1,6 +1,6 @@
 package com.shtrih.util;
 
-import androidx.test.runner.AndroidJUnit4;
+import android.support.test.runner.AndroidJUnit4;
 
 import com.shtrih.util.encoding.IBM866;
 

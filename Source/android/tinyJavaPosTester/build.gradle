@@ -16,7 +16,7 @@ android {
         versionName "$version"
         multiDexEnabled true
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
     buildFeatures.dataBinding = true

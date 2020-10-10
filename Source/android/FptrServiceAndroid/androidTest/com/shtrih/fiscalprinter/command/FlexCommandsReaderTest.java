@@ -7,9 +7,8 @@
 
 package com.shtrih.fiscalprinter.command;
 
+import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
-
-import androidx.test.runner.AndroidJUnit4;
 
 import com.shtrih.util.Stopwatch;
 
