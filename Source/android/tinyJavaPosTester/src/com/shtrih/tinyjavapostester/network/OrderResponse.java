@@ -300,7 +300,7 @@ public class OrderResponse implements Serializable {
         private Integer benefitsAmount;
         @SerializedName("serv_payed")
         @Expose
-        private Integer servPayed;
+        private Double servPayed;
         @SerializedName("prev_tran")
         @Expose
         private List<Object> prevTran = null;
@@ -380,11 +380,11 @@ public class OrderResponse implements Serializable {
             this.benefitsAmount = benefitsAmount;
         }
 
-        public Integer getServPayed() {
+        public Double getServPayed() {
             return servPayed;
         }
 
-        public void setServPayed(Integer servPayed) {
+        public void setServPayed(Double servPayed) {
             this.servPayed = servPayed;
         }
 

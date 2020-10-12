@@ -104,16 +104,23 @@ public class TransactionBody {
             jsonObject.put("order_id", orderId);
             JSONArray operationPayments = new JSONArray();
             JSONObject operationData = deepLinkData.getJSONObject("operation_data");
+
             int paymentCash = operationData.getInt("payment_cash");
-            JSONObject transactionPayCash = new JSONObject();
-            transactionPayCash.put("pay_type", 1);
-            transactionPayCash.put("pay_sum", paymentCash);
-            operationPayments.put(transactionPayCash);
+            if (paymentCash != 0) {
+                JSONObject transactionPayCash = new JSONObject();
+                transactionPayCash.put("pay_type", 1);
+                transactionPayCash.put("pay_sum", paymentCash);
+                operationPayments.put(transactionPayCash);
+            }
+
             int paymentCard = operationData.getInt("payment_card");
-            JSONObject transactionPayCard = new JSONObject();
-            transactionPayCard.put("pay_type", 2);
-            transactionPayCard.put("pay_sum", paymentCard);
-            operationPayments.put(transactionPayCard);
+            if (paymentCard != 0) {
+                JSONObject transactionPayCard = new JSONObject();
+                transactionPayCard.put("pay_type", 2);
+                transactionPayCard.put("pay_sum", paymentCard);
+                operationPayments.put(transactionPayCard);
+            }
+
             jsonObject.put("operation_payments", operationPayments);
             JSONArray servs = new JSONArray();
             for (OrderResponse.Serv serv : order.getServs()) {
@@ -153,16 +160,23 @@ public class TransactionBody {
             jsonObject.put("order_id", orderId);
             JSONArray operationPayments = new JSONArray();
             JSONObject operationData = deepLinkData.getJSONObject("operation_data");
+
             int paymentCash = operationData.getInt("payment_cash");
-            JSONObject transactionPayCash = new JSONObject();
-            transactionPayCash.put("pay_type", 1);
-            transactionPayCash.put("pay_sum", paymentCash);
-            operationPayments.put(transactionPayCash);
+            if (paymentCash != 0) {
+                JSONObject transactionPayCash = new JSONObject();
+                transactionPayCash.put("pay_type", 1);
+                transactionPayCash.put("pay_sum", paymentCash);
+                operationPayments.put(transactionPayCash);
+            }
+
             int paymentCard = operationData.getInt("payment_card");
-            JSONObject transactionPayCard = new JSONObject();
-            transactionPayCard.put("pay_type", 2);
-            transactionPayCard.put("pay_sum", paymentCard);
-            operationPayments.put(transactionPayCard);
+            if (paymentCard != 0) {
+                JSONObject transactionPayCard = new JSONObject();
+                transactionPayCard.put("pay_type", 2);
+                transactionPayCard.put("pay_sum", paymentCard);
+                operationPayments.put(transactionPayCard);
+            }
+
             jsonObject.put("operation_payments", operationPayments);
             JSONArray servs = new JSONArray();
 
