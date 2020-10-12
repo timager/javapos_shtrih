@@ -234,6 +234,7 @@ public class MainActivity extends AbstractActivity {
                 @Override
                 public void onResponse(Call<ConfirmResponse> call, Response<ConfirmResponse> response) {
                     showMessage("Успешный результат отправлен");
+                    exitApplication();
                 }
 
                 @Override
@@ -272,5 +273,10 @@ public class MainActivity extends AbstractActivity {
             bthXReport.setEnabled(false);
             bthZReport.setEnabled(false);
         }
+    }
+
+    private void exitApplication() {
+        finishAffinity();
+        System.exit(0);
     }
 }
