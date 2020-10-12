@@ -183,7 +183,7 @@ public class TransactionBody {
 
                 JSONObject service = new JSONObject();
                 service.put("serv_id", serv.getServId());
-                service.put("serv_current_pay", "-" + finalPrice);
+                service.put("serv_current_pay", finalPrice);
                 service.put("pay_id", 1);
                 servs.put(service);
             }
