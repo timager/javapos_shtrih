@@ -24,6 +24,7 @@ import com.shtrih.tinyjavapostester.task.PrintReceiptTask;
 import com.shtrih.tinyjavapostester.task.PrintXReportTaskKKM;
 import com.shtrih.tinyjavapostester.task.PrintZReportTaskKKM;
 import com.shtrih.tinyjavapostester.task.listener.Listener;
+import com.shtrih.tinyjavapostester.util.AppUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -164,22 +165,13 @@ public class MainActivity extends AbstractActivity {
 
     private boolean isFullSale() throws JSONException {
         return isSale()
-                && getDeepLinkSumPaymentSale() == getOrderSum();
+                && AppUtil.getSumPaymentFromDeepLink(deepLinkData) == getOrderSum();
 
     }
 
     private boolean isPartitionSale() throws JSONException {
         return isSale()
-                && getDeepLinkSumPaymentSale() != getOrderSum();
-    }
-
-    private double getDeepLinkSumPaymentSale() throws JSONException {
-        JSONObject operationData = deepLinkData.getJSONObject("operation_data");
-
-        double paymentCash = operationData.getDouble("payment_cash");
-        double paymentCard = operationData.getDouble("payment_card");
-
-        return paymentCash + paymentCard;
+                && AppUtil.getSumPaymentFromDeepLink(deepLinkData) != getOrderSum();
     }
 
     private double getOrderSum() {

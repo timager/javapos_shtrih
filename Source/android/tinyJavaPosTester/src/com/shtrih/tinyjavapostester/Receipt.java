@@ -9,8 +9,8 @@ import com.shtrih.jpos.fiscalprinter.JposExceptionHandler;
 import com.shtrih.jpos.fiscalprinter.SmFptrConst;
 import com.shtrih.tinyjavapostester.network.OrderResponse;
 import com.shtrih.tinyjavapostester.network.TransactionHistoryItem;
+import com.shtrih.tinyjavapostester.util.AppUtil;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -83,22 +83,13 @@ public class Receipt {
 
     private boolean isFullSale() throws JSONException {
         return isSale()
-                && getDeepLinkSumPaymentSale() == getOrderSum();
+                && AppUtil.getSumPaymentFromDeepLink(deepLinkData) == getOrderSum();
 
     }
 
     private boolean isPartitionSale() throws JSONException {
         return isSale()
-                && getDeepLinkSumPaymentSale() != getOrderSum();
-    }
-
-    private double getDeepLinkSumPaymentSale() throws JSONException {
-        JSONObject operationData = deepLinkData.getJSONObject("operation_data");
-
-        double paymentCash = operationData.getDouble("payment_cash");
-        double paymentCard = operationData.getDouble("payment_card");
-
-        return paymentCash + paymentCard;
+                && AppUtil.getSumPaymentFromDeepLink(deepLinkData) != getOrderSum();
     }
 
     private double getOrderSum() {
@@ -121,7 +112,7 @@ public class Receipt {
     }
 
     private void printPartitionSales(ShtrihFiscalPrinter printer) throws Exception {
-        double deepLinkSum = getDeepLinkSumPaymentSale();
+        double deepLinkSum = AppUtil.getSumPaymentFromDeepLink(deepLinkData);
 
         printer.setFiscalReceiptType(FiscalPrinterConst.FPTR_RT_SALES);
         printer.beginFiscalReceipt(true);
@@ -136,7 +127,7 @@ public class Receipt {
     private void printRefundService(ShtrihFiscalPrinter printer) throws Exception {
         int fiscalReceiptType = deepLinkData.getJSONObject("operation_data").getInt("fiscal");
 
-        List<Integer> refundServiceIdList = convertToList(deepLinkData.getJSONObject("operation_data").getJSONArray("servs"));
+        List<Integer> refundServiceIdList = AppUtil.convertToListInteger(deepLinkData.getJSONObject("operation_data").getJSONArray("servs"));
         List<OrderResponse.Serv> refundServiceList = new ArrayList<>();
         for (OrderResponse.Serv serv : order.getServs()) {
             if (refundServiceIdList.contains(serv.getServId())) {
@@ -157,7 +148,7 @@ public class Receipt {
     private void printRefundTransaction(ShtrihFiscalPrinter printer) throws Exception {
         int fiscalReceiptType = deepLinkData.getJSONObject("operation_data").getInt("fiscal");
 
-        List<Integer> transactionRefundIdList = convertToList(deepLinkData.getJSONObject("operation_data").getJSONArray("transactions"));
+        List<Integer> transactionRefundIdList = AppUtil.convertToListInteger(deepLinkData.getJSONObject("operation_data").getJSONArray("transactions"));
         double sumRefund = 0;
         for (TransactionHistoryItem transactionHistoryItem : order.getPayHistory()) {
             if (transactionRefundIdList.contains(transactionHistoryItem.id)) {
@@ -206,25 +197,18 @@ public class Receipt {
         // Коэфициент между суммой возврата и общей суммой
         double sumRate = partitionSum / order.getOrderAmount();
 
-        long sumPennyPrintItem = 0;
+        List<Double> printPriceList = AppUtil.getListServicePaymentByPartition(items, order.getOrderAmount(), partitionSum);
         for (int i = 0; i < items.size(); i++) {
             OrderResponse.Serv serv = items.get(i);
+            Double printPrice = printPriceList.get(i);
+            long printPricePenny = (long) (printPrice * 100);
 
-            long pricePenny = Long.parseLong(serv.getServCost().replace(".", "")) / 100;
-            long priceWithDiscountPenny = Long.parseLong(serv.getServCostD().replace(".", "")) / 100;
+            long pricePenny = (long) (Double.parseDouble(serv.getServCost()) * 100);
+            long priceWithDiscountPenny = (long) (Double.parseDouble(serv.getServCostD()) * 100);
             long discountPenny = pricePenny - priceWithDiscountPenny;
             int taxType = serv.getServTax();
 
-            long finalPriceWithDiscountPenny;
-            // Последняя цена высчитывается из суммы возврата - сумма всех позиций в чеке, кроме последнего
-            if (i != items.size() - 1) {
-                finalPriceWithDiscountPenny = (long) (sumRate * priceWithDiscountPenny);
-                sumPennyPrintItem += finalPriceWithDiscountPenny;
-            } else {
-                finalPriceWithDiscountPenny = ((long) partitionSum * 100) - sumPennyPrintItem;
-            }
-
-            printer.printRecItem(serv.getServCode() + " " + serv.getServName(), finalPriceWithDiscountPenny, 0, taxType, 0, unitName);
+            printer.printRecItem(serv.getServCode() + " " + serv.getServName(), printPricePenny, 0, taxType, 0, unitName);
             printer.printRecItemAdjustment(FiscalPrinterConst.FPTR_AT_AMOUNT_DISCOUNT, "", discountPenny, taxType);
             printer.printRecMessage("------------");
         }
@@ -244,27 +228,15 @@ public class Receipt {
     }
 
     private void printRefundItemsByTransaction(ShtrihFiscalPrinter printer, double sumRefund, String unitName, int fiscalReceiptType) throws Exception {
-        // Коэфициент между суммой возврата и общей суммой
-        double sumRate = sumRefund / order.getOrderAmount();
-
         List<OrderResponse.Serv> servs = order.getServs();
-        long sumPennyPrintItem = 0;
+        List<Double> printPriceList = AppUtil.getListServicePaymentByPartition(servs, order.getOrderAmount(), sumRefund);
 
         for (int i = 0; i < servs.size(); i++) {
             OrderResponse.Serv serv = servs.get(i);
-            long pricePenny = Long.parseLong(serv.getServCost().replace(".", "")) / 100;
+            long printPricePenny = (long) (printPriceList.get(i) * 100);
             int taxType = serv.getServTax();
 
-            long finalPricePenny;
-            // Последняя цена высчитывается из суммы возврата - сумма всех позиций в чеке, кроме последнего
-            if (i != servs.size() - 1) {
-                finalPricePenny = (long) (sumRate * pricePenny);
-                sumPennyPrintItem += finalPricePenny;
-            } else {
-                finalPricePenny = ((long) sumRefund * 100) - sumPennyPrintItem;
-            }
-
-            printer.printRecItemRefund(serv.getServCode() + " " + serv.getServName(), finalPricePenny, 0, taxType, 0, unitName);
+            printer.printRecItemRefund(serv.getServCode() + " " + serv.getServName(), printPricePenny, 0, taxType, 0, unitName);
             printPaymentType(printer, fiscalReceiptType);
             printer.printRecMessage("------------");
         }
@@ -306,7 +278,7 @@ public class Receipt {
     }
 
     private void printPartitionSaleSubTotal(ShtrihFiscalPrinter printer) throws JposException, JSONException {
-        double orderSum = getDeepLinkSumPaymentSale();
+        double orderSum = AppUtil.getSumPaymentFromDeepLink(deepLinkData);
         //long orderSumDiscount = order.getOrderAmountWithBenefits();
         printer.printRecMessage(makeSpacesFormatString("СУММА ЗАКАЗА", "=" + orderSum));
         printer.printRecMessage(makeSpacesFormatString("СУММА С УЧЕТОМ СКИДКИ", "=" + orderSum));
@@ -412,15 +384,5 @@ public class Receipt {
         return null;
     }
 
-    private List<Integer> convertToList(JSONArray array) throws JSONException {
-        List<Integer> resultList = new ArrayList<>();
-        for (int i = 0; i < array.length(); i++) {
-            try {
-                Integer value = array.getInt(i);
-                resultList.add(value);
-            } catch (Exception ignored) {
-            }
-        }
-        return resultList;
-    }
+
 }

@@ -4,6 +4,7 @@ import android.os.Build;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.shtrih.tinyjavapostester.util.AppUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -147,8 +148,7 @@ public class TransactionBody {
         Integer orderId = order.getOrderId();
         String packUuid = UUID.randomUUID().toString();
 
-        double partitionSumSale = getDeepLinkSumPaymentSale(deepLinkData);
-        double sumRate = partitionSumSale / order.getOrderAmount();
+        double partitionSumSale = AppUtil.getSumPaymentFromDeepLink(deepLinkData);
 
         try {
             JSONObject jsonObject = new JSONObject();
@@ -178,26 +178,17 @@ public class TransactionBody {
             }
 
             jsonObject.put("operation_payments", operationPayments);
-            JSONArray servs = new JSONArray();
 
-            double sumHandleItem = 0;
+            List<Double> partPriceList = AppUtil.getListServicePaymentByPartition(order.getServs(), order.getOrderAmount(), partitionSumSale);
+
+            JSONArray servs = new JSONArray();
             for (int i = 0; i < order.getServs().size(); i++) {
                 OrderResponse.Serv serv = order.getServs().get(i);
-
-                double priceService = Double.parseDouble(serv.getServCostD());
-
-                double finalPrice;
-                // Последняя цена высчитывается из суммы возврата - сумма всех позиций в чеке, кроме последнего
-                if (i != order.getServs().size() - 1) {
-                    finalPrice = sumRate * priceService;
-                    sumHandleItem += finalPrice;
-                } else {
-                    finalPrice = partitionSumSale - sumHandleItem;
-                }
+                double partPrice = partPriceList.get(i);
 
                 JSONObject service = new JSONObject();
                 service.put("serv_id", serv.getServId());
-                service.put("serv_current_pay", finalPrice);
+                service.put("serv_current_pay", partPrice);
                 servs.put(service);
             }
 
@@ -220,7 +211,7 @@ public class TransactionBody {
         String packUuid = UUID.randomUUID().toString();
         int paymentType = deepLinkData.getJSONObject("operation_data").getInt("pay_type");
 
-        List<Integer> refundServiceIdList = convertToList(deepLinkData.getJSONObject("operation_data").getJSONArray("servs"));
+        List<Integer> refundServiceIdList = AppUtil.convertToListInteger(deepLinkData.getJSONObject("operation_data").getJSONArray("servs"));
         List<OrderResponse.Serv> refundServiceList = new ArrayList<>();
         for (OrderResponse.Serv serv : order.getServs()) {
             if (refundServiceIdList.contains(serv.getServId())) {
@@ -292,15 +283,13 @@ public class TransactionBody {
         String packUuid = UUID.randomUUID().toString();
         int paymentType = 1;
 
-        List<Integer> transactionRefundIdList = convertToList(deepLinkData.getJSONObject("operation_data").getJSONArray("transactions"));
+        List<Integer> transactionRefundIdList = AppUtil.convertToListInteger(deepLinkData.getJSONObject("operation_data").getJSONArray("transactions"));
         double sumRefund = 0;
         for (TransactionHistoryItem transactionHistoryItem : order.getPayHistory()) {
             if (transactionRefundIdList.contains(transactionHistoryItem.id)) {
                 sumRefund += transactionHistoryItem.sum;
             }
         }
-
-        double sumRate = sumRefund / order.getOrderAmount();
 
         try {
             JSONObject jsonObject = new JSONObject();
@@ -333,25 +322,15 @@ public class TransactionBody {
             jsonObject.put("operation_payments", operationPayments);
 
             JSONArray servs = new JSONArray();
-            double sumHandleItem = 0;
+            List<Double> partPriceList = AppUtil.getListServicePaymentByPartition(order.getServs(), order.getOrderAmount(), sumRefund);
 
             for (int i = 0; i < order.getServs().size(); i++) {
                 OrderResponse.Serv serv = order.getServs().get(i);
-
-                double priceService = Double.parseDouble(serv.getServCostD());
-
-                double finalPrice;
-                // Последняя цена высчитывается из суммы возврата - сумма всех позиций в чеке, кроме последнего
-                if (i != order.getServs().size() - 1) {
-                    finalPrice = sumRate * priceService;
-                    sumHandleItem += finalPrice;
-                } else {
-                    finalPrice = sumRefund - sumHandleItem;
-                }
+                double partPrice = partPriceList.get(i);
 
                 JSONObject service = new JSONObject();
                 service.put("serv_id", serv.getServId());
-                service.put("serv_current_pay", "-" + finalPrice);
+                service.put("serv_current_pay", "-" + partPrice);
                 service.put("pay_id", 1);
                 servs.put(service);
             }
@@ -417,26 +396,5 @@ public class TransactionBody {
         }
 
         return null;
-    }
-
-    private static double getDeepLinkSumPaymentSale(JSONObject deepLinkData) throws JSONException {
-        JSONObject operationData = deepLinkData.getJSONObject("operation_data");
-
-        double paymentCash = operationData.getDouble("payment_cash");
-        double paymentCard = operationData.getDouble("payment_card");
-
-        return paymentCash + paymentCard;
-    }
-
-    private static List<Integer> convertToList(JSONArray array) {
-        List<Integer> resultList = new ArrayList<>();
-        for (int i = 0; i < array.length(); i++) {
-            try {
-                Integer value = array.getInt(i);
-                resultList.add(value);
-            } catch (Exception ignored) {
-            }
-        }
-        return resultList;
     }
 }

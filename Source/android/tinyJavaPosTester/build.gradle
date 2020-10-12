@@ -42,6 +42,9 @@ android {
 //    }
 
     compileOptions {
+        coreLibraryDesugaringEnabled true
+
+
         sourceCompatibility = '1.8'
         targetCompatibility = '1.8'
     }
@@ -147,6 +150,7 @@ dependencies {
         exclude module: 'stax-api'
         exclude module: 'xpp3'
     })
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.0.10'
     // ViewModel and LiveData
     implementation "android.arch.lifecycle:extensions:1.1.1"
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
