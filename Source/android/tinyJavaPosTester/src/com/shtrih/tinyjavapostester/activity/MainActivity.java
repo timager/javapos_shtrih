@@ -125,7 +125,7 @@ public class MainActivity extends AbstractActivity {
         String kkmNumber = "";
         long receiptNumber = 0;
         try {
-            kkmNumber = model.getPrinter().getPhysicalDeviceName();
+            kkmNumber = model.getPrinter().getPhysicalDeviceName().replace(" ", "");
             receiptNumber = model.getPrinter().getReceiptNumber();
         } catch (Exception e) {
             showMessage(getMessageFromTrace(e.getStackTrace()));
