@@ -243,17 +243,21 @@ public class TransactionBody {
             JSONArray operationPayments = new JSONArray();
 
             if (paymentType == 1) {
-                JSONObject transactionPayCash = new JSONObject();
-                transactionPayCash.put("pay_type", 1);
-                transactionPayCash.put("pay_sum", -sumPayment);
-                transactionPayCash.put("pay_id", 1);
-                operationPayments.put(transactionPayCash);
+                if (sumPayment != 0) {
+                    JSONObject transactionPayCash = new JSONObject();
+                    transactionPayCash.put("pay_type", 1);
+                    transactionPayCash.put("pay_sum", -sumPayment);
+                    transactionPayCash.put("pay_id", 1);
+                    operationPayments.put(transactionPayCash);
+                }
             } else if (paymentType == 2) {
-                JSONObject transactionPayCard = new JSONObject();
-                transactionPayCard.put("pay_type", 2);
-                transactionPayCard.put("pay_sum", -sumPayment);
-                transactionPayCard.put("pay_id", 1);
-                operationPayments.put(transactionPayCard);
+                if (sumPayment != 0) {
+                    JSONObject transactionPayCard = new JSONObject();
+                    transactionPayCard.put("pay_type", 2);
+                    transactionPayCard.put("pay_sum", -sumPayment);
+                    transactionPayCard.put("pay_id", 1);
+                    operationPayments.put(transactionPayCard);
+                }
             }
 
             jsonObject.put("operation_payments", operationPayments);
@@ -309,17 +313,21 @@ public class TransactionBody {
             JSONArray operationPayments = new JSONArray();
 
             if (paymentType == 1) {
-                JSONObject transactionPayCash = new JSONObject();
-                transactionPayCash.put("pay_type", 1);
-                transactionPayCash.put("pay_sum", -sumRefund);
-                transactionPayCash.put("pay_id", 1);
-                operationPayments.put(transactionPayCash);
+                if (sumRefund != 0) {
+                    JSONObject transactionPayCash = new JSONObject();
+                    transactionPayCash.put("pay_type", 1);
+                    transactionPayCash.put("pay_sum", -sumRefund);
+                    transactionPayCash.put("pay_id", 1);
+                    operationPayments.put(transactionPayCash);
+                }
             } else if (paymentType == 2) {
-                JSONObject transactionPayCard = new JSONObject();
-                transactionPayCard.put("pay_type", 2);
-                transactionPayCard.put("pay_sum", -sumRefund);
-                transactionPayCard.put("pay_id", 1);
-                operationPayments.put(transactionPayCard);
+                if (sumRefund != 0) {
+                    JSONObject transactionPayCard = new JSONObject();
+                    transactionPayCard.put("pay_type", 2);
+                    transactionPayCard.put("pay_sum", -sumRefund);
+                    transactionPayCard.put("pay_id", 1);
+                    operationPayments.put(transactionPayCard);
+                }
             }
 
             jsonObject.put("operation_payments", operationPayments);
@@ -379,17 +387,21 @@ public class TransactionBody {
             JSONArray operationPayments = new JSONArray();
 
             if (paymentType == 1) {
-                JSONObject transactionPayCash = new JSONObject();
-                transactionPayCash.put("pay_type", 1);
-                transactionPayCash.put("pay_sum", -sumPayment);
-                transactionPayCash.put("pay_id", 1);
-                operationPayments.put(transactionPayCash);
+                if (sumPayment != 0) {
+                    JSONObject transactionPayCash = new JSONObject();
+                    transactionPayCash.put("pay_type", 1);
+                    transactionPayCash.put("pay_sum", -sumPayment);
+                    transactionPayCash.put("pay_id", 1);
+                    operationPayments.put(transactionPayCash);
+                }
             } else if (paymentType == 2) {
-                JSONObject transactionPayCard = new JSONObject();
-                transactionPayCard.put("pay_type", 2);
-                transactionPayCard.put("pay_sum", -sumPayment);
-                transactionPayCard.put("pay_id", 1);
-                operationPayments.put(transactionPayCard);
+                if (sumPayment != 0) {
+                    JSONObject transactionPayCard = new JSONObject();
+                    transactionPayCard.put("pay_type", 2);
+                    transactionPayCard.put("pay_sum", -sumPayment);
+                    transactionPayCard.put("pay_id", 1);
+                    operationPayments.put(transactionPayCard);
+                }
             }
 
             jsonObject.put("operation_payments", operationPayments);
