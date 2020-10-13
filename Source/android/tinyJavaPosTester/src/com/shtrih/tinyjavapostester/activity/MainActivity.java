@@ -8,7 +8,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-
 import com.shtrih.tinyjavapostester.R;
 import com.shtrih.tinyjavapostester.Receipt;
 import com.shtrih.tinyjavapostester.network.ConfirmBody;
@@ -69,8 +68,9 @@ public class MainActivity extends AbstractActivity {
         response = (OrderResponse) intent.getSerializableExtra(ORDER_RESPONSE);
         try {
             String json = intent.getStringExtra(DEEP_LINK_DATA);
-            if (json != null)
+            if (json != null) {
                 deepLinkData = new JSONObject(json);
+            }
         } catch (JSONException e) {
             showMessage(e.getMessage());
         }
@@ -147,61 +147,21 @@ public class MainActivity extends AbstractActivity {
 
     private TransactionBody createTransactionBody(OrderResponse.Order order, JSONObject deepLinkData, String kkmNumber, long receiptNumber) {
         try {
-            if (isFullSale()) {
+            if (AppUtil.isFullSale(deepLinkData, response.getOrder())) {
                 return TransactionBody.createSaleTransactionBody(order, deepLinkData, kkmNumber, receiptNumber);
-            } else if (isPartitionSale()) {
+            } else if (AppUtil.isPartitionSale(deepLinkData, response.getOrder())) {
                 return TransactionBody.createPartitionSaleTransactionBody(order, deepLinkData, kkmNumber, receiptNumber);
-            } else if (isRefundService()) {
+            } else if (AppUtil.isRefundService(deepLinkData)) {
                 return TransactionBody.createRefundServiceTransactionBody(order, deepLinkData, kkmNumber, receiptNumber);
-            } else if (isRefundTransaction()) {
+            } else if (AppUtil.isRefundTransaction(deepLinkData)) {
                 return TransactionBody.createRefundTransactionTransactionBody(order, deepLinkData, kkmNumber, receiptNumber);
-            } else if (isRefundByReason()) {
+            } else if (AppUtil.isRefundByReason(deepLinkData)) {
                 return TransactionBody.createRefundByReasonTransactionBody(order, deepLinkData, kkmNumber, receiptNumber);
             }
-        } catch (Exception e) { }
+        } catch (Exception e) {
+        }
 
         return null;
-    }
-
-    private boolean isFullSale() throws JSONException {
-        return isSale()
-                && AppUtil.getSumPaymentFromDeepLink(deepLinkData) == getOrderSum();
-
-    }
-
-    private boolean isPartitionSale() throws JSONException {
-        return isSale()
-                && AppUtil.getSumPaymentFromDeepLink(deepLinkData) != getOrderSum();
-    }
-
-    private double getOrderSum() {
-        return response.getOrder().getOrderAmount();
-    }
-
-    private boolean isRefundService() {
-        return isRefund()
-                && deepLinkData.optJSONObject("operation_data") != null
-                && deepLinkData.optJSONObject("operation_data").opt("servs") != null;
-    }
-
-    private boolean isRefundTransaction() {
-        return isRefund()
-                && deepLinkData.optJSONObject("operation_data") != null
-                && deepLinkData.optJSONObject("operation_data").opt("transactions") != null;
-    }
-
-    private boolean isRefundByReason() {
-        return isRefund()
-                && deepLinkData.optJSONObject("operation_data") != null
-                && deepLinkData.optJSONObject("operation_data").opt("claim") != null;
-    }
-
-    private boolean isSale() {
-        return deepLinkData.optInt("operation_type") == 1;
-    }
-
-    private boolean isRefund() {
-        return deepLinkData.optInt("operation_type") == 2;
     }
 
     private void sendResultToApi(Exception exception, String uuid) {
@@ -264,6 +224,14 @@ public class MainActivity extends AbstractActivity {
             btnPrintCopy.setEnabled(false);
             bthXReport.setEnabled(false);
             bthZReport.setEnabled(false);
+        }
+
+        try {
+            if (response != null && AppUtil.isZeroPaymentFromDeepLink(deepLinkData, response.getOrder())) {
+                btnPrintReceipt.setEnabled(false);
+                showMessage("Стоимость чека равна 0");
+            }
+        } catch (JSONException e) {
         }
     }
 

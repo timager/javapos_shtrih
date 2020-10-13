@@ -148,7 +148,7 @@ public class TransactionBody {
         Integer orderId = order.getOrderId();
         String packUuid = UUID.randomUUID().toString();
 
-        double partitionSumSale = AppUtil.getSumPaymentFromDeepLink(deepLinkData);
+        double partitionSumSale = AppUtil.getSumSalePaymentFromDeepLink(deepLinkData);
 
         try {
             JSONObject jsonObject = new JSONObject();
@@ -353,7 +353,7 @@ public class TransactionBody {
         Integer orderId = order.getOrderId();
         String packUuid = UUID.randomUUID().toString();
         int paymentType = 1;
-        int sumPayment = deepLinkData.getJSONObject("operation_data").getInt("sum");
+        double sumPayment = deepLinkData.getJSONObject("operation_data").getDouble("sum");
 
         try {
             JSONObject jsonObject = new JSONObject();

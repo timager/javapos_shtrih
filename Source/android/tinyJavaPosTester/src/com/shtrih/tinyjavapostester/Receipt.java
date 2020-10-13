@@ -46,58 +46,17 @@ public class Receipt {
         printer.setFontNumber(1);
         printReceiptHeader(printer);
 
-        if (isFullSale()) {
+        if (AppUtil.isFullSale(deepLinkData, order)) {
             printSales(printer);
-        } else if (isPartitionSale()) {
+        } else if (AppUtil.isPartitionSale(deepLinkData, order)) {
             printPartitionSales(printer);
-        } else if (isRefundService()) {
+        } else if (AppUtil.isRefundService(deepLinkData)) {
             printRefundService(printer);
-        } else if (isRefundTransaction()) {
+        } else if (AppUtil.isRefundTransaction(deepLinkData)) {
             printRefundTransaction(printer);
-        } else if (isRefundByReason()) {
+        } else if (AppUtil.isRefundByReason(deepLinkData)) {
             printRefundByReason(printer);
         }
-    }
-
-    private boolean isRefundService() {
-        return isRefund()
-                && deepLinkData.optJSONObject("operation_data") != null
-                && deepLinkData.optJSONObject("operation_data").opt("servs") != null;
-    }
-
-    private boolean isRefundTransaction() {
-        return isRefund()
-                && deepLinkData.optJSONObject("operation_data") != null
-                && deepLinkData.optJSONObject("operation_data").opt("transactions") != null;
-    }
-
-    private boolean isRefundByReason() {
-        return isRefund()
-                && deepLinkData.optJSONObject("operation_data") != null
-                && deepLinkData.optJSONObject("operation_data").opt("claim") != null;
-    }
-
-    private boolean isSale() {
-        return deepLinkData.optInt("operation_type") == 1;
-    }
-
-    private boolean isFullSale() throws JSONException {
-        return isSale()
-                && AppUtil.getSumPaymentFromDeepLink(deepLinkData) == getOrderSum();
-
-    }
-
-    private boolean isPartitionSale() throws JSONException {
-        return isSale()
-                && AppUtil.getSumPaymentFromDeepLink(deepLinkData) != getOrderSum();
-    }
-
-    private double getOrderSum() {
-        return order.getOrderAmount();
-    }
-
-    private boolean isRefund() {
-        return deepLinkData.optInt("operation_type") == 2;
     }
 
     private void printSales(ShtrihFiscalPrinter printer) throws Exception {
@@ -112,7 +71,7 @@ public class Receipt {
     }
 
     private void printPartitionSales(ShtrihFiscalPrinter printer) throws Exception {
-        double deepLinkSum = AppUtil.getSumPaymentFromDeepLink(deepLinkData);
+        double deepLinkSum = AppUtil.getSumSalePaymentFromDeepLink(deepLinkData);
 
         printer.setFiscalReceiptType(FiscalPrinterConst.FPTR_RT_SALES);
         printer.beginFiscalReceipt(true);
@@ -148,13 +107,7 @@ public class Receipt {
     private void printRefundTransaction(ShtrihFiscalPrinter printer) throws Exception {
         int fiscalReceiptType = deepLinkData.getJSONObject("operation_data").getInt("fiscal");
 
-        List<Integer> transactionRefundIdList = AppUtil.convertToListInteger(deepLinkData.getJSONObject("operation_data").getJSONArray("transactions"));
-        double sumRefund = 0;
-        for (TransactionHistoryItem transactionHistoryItem : order.getPayHistory()) {
-            if (transactionRefundIdList.contains(transactionHistoryItem.id)) {
-                sumRefund += transactionHistoryItem.sum;
-            }
-        }
+        double sumRefund = AppUtil.getSumRefundTransactionFromData(deepLinkData, order);
 
         printer.setParameter(SmFptrConst.SMFPTR_DIO_PARAM_ITEM_PAYMENT_TYPE, fiscalReceiptType);
         printer.setFiscalReceiptType(FiscalPrinterConst.FPTR_RT_REFUND);
@@ -278,7 +231,7 @@ public class Receipt {
     }
 
     private void printPartitionSaleSubTotal(ShtrihFiscalPrinter printer) throws JposException, JSONException {
-        double orderSum = AppUtil.getSumPaymentFromDeepLink(deepLinkData);
+        double orderSum = AppUtil.getSumSalePaymentFromDeepLink(deepLinkData);
         //long orderSumDiscount = order.getOrderAmountWithBenefits();
         printer.printRecMessage(makeSpacesFormatString("СУММА ЗАКАЗА", "=" + orderSum));
         printer.printRecMessage(makeSpacesFormatString("СУММА С УЧЕТОМ СКИДКИ", "=" + orderSum));
@@ -337,7 +290,7 @@ public class Receipt {
 
     private void printRefundTotalByReason(ShtrihFiscalPrinter printer) throws JSONException, JposException {
         String reason = deepLinkData.getJSONObject("operation_data").getString("claim");
-        long sumPennyPayment = deepLinkData.getJSONObject("operation_data").getLong("sum") * 100;
+        long sumPennyPayment = (long) (deepLinkData.getJSONObject("operation_data").getDouble("sum") * 100);
 
         printer.printRecRefund(reason, sumPennyPayment, 0);
         printer.printRecTotal(sumPennyPayment, sumPennyPayment, "0");
