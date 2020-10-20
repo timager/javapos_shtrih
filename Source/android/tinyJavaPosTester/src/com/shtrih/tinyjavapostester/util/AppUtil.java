@@ -134,7 +134,7 @@ public class AppUtil {
     }
 
     public static double getOrderSum(OrderResponse.Order order) {
-        return order.getOrderAmount();
+        return order.getOrderAmountWithBenefits();
     }
 
     public static boolean isRefundService(JSONObject deepLinkData) {
