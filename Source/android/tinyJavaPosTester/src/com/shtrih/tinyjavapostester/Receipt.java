@@ -8,7 +8,6 @@ import com.shtrih.fiscalprinter.command.LongPrinterStatus;
 import com.shtrih.jpos.fiscalprinter.JposExceptionHandler;
 import com.shtrih.jpos.fiscalprinter.SmFptrConst;
 import com.shtrih.tinyjavapostester.network.OrderResponse;
-import com.shtrih.tinyjavapostester.network.TransactionHistoryItem;
 import com.shtrih.tinyjavapostester.util.AppUtil;
 
 import org.json.JSONException;
@@ -23,6 +22,7 @@ import jpos.JposException;
 public class Receipt {
     private final String UNIT_NAME_SALE = "Оплата";
     private final String UNIT_NAME_REFUND = "Возврат";
+    private final String CONST_WORD_PAYMENT = "ПЛАТЕЖ";
 
     private OrderResponse.Order order;
     private JSONObject deepLinkData;
@@ -47,7 +47,7 @@ public class Receipt {
         printReceiptHeader(printer);
 
         if (AppUtil.isFullSale(deepLinkData, order)) {
-            printSales(printer);
+            printFullSales(printer);
         } else if (AppUtil.isPartitionSale(deepLinkData, order)) {
             printPartitionSales(printer);
         } else if (AppUtil.isRefundService(deepLinkData)) {
@@ -59,13 +59,13 @@ public class Receipt {
         }
     }
 
-    private void printSales(ShtrihFiscalPrinter printer) throws Exception {
+    private void printFullSales(ShtrihFiscalPrinter printer) throws Exception {
         printer.setFiscalReceiptType(FiscalPrinterConst.FPTR_RT_SALES);
         printer.beginFiscalReceipt(true);
         writeTags(printer);
-        printItems(printer, order.getServs(), UNIT_NAME_SALE);
+        printFullSaleItems(printer, order.getServs(), UNIT_NAME_SALE);
         printDiscount(printer);
-        printSubTotal(printer);
+        printFullSubTotal(printer);
         printTotal(printer);
         printer.endFiscalReceipt(false);
     }
@@ -134,7 +134,7 @@ public class Receipt {
         printer.fsWriteTag(1021, deepLinkData.getString("username"));
     }
 
-    private void printItems(ShtrihFiscalPrinter printer, List<OrderResponse.Serv> items, String unitName) throws JposException {
+    private void printFullSaleItems(ShtrihFiscalPrinter printer, List<OrderResponse.Serv> items, String unitName) throws JposException {
         for (OrderResponse.Serv serv : items) {
             long price = Long.parseLong(serv.getServCost().replace(".", "")) / 100;
             long priceDiscount = Long.parseLong(serv.getServCostD().replace(".", "")) / 100;
@@ -142,6 +142,7 @@ public class Receipt {
             int taxType = serv.getServTax();
             printer.printRecItem(serv.getServCode() + " " + serv.getServName(), price, 0, taxType, 0, unitName);
             printer.printRecItemAdjustment(FiscalPrinterConst.FPTR_AT_AMOUNT_DISCOUNT, "", discount, taxType);
+            printer.printRecMessage(makeSpacesFormatString(getTextPaymentType(1), CONST_WORD_PAYMENT));
             printer.printRecMessage("------------");
         }
     }
@@ -163,6 +164,7 @@ public class Receipt {
 
             printer.printRecItem(serv.getServCode() + " " + serv.getServName(), printPricePenny, 0, taxType, 0, unitName);
             printer.printRecItemAdjustment(FiscalPrinterConst.FPTR_AT_AMOUNT_DISCOUNT, "", discountPenny, taxType);
+            printer.printRecMessage(makeSpacesFormatString(getTextPaymentType(2), CONST_WORD_PAYMENT));
             printer.printRecMessage("------------");
         }
     }
@@ -223,11 +225,12 @@ public class Receipt {
         return str.toString();
     }
 
-    private void printSubTotal(ShtrihFiscalPrinter printer) throws JposException {
+    private void printFullSubTotal(ShtrihFiscalPrinter printer) throws JposException {
         long orderSum = order.getOrderAmount(); //не уверен
         long orderSumDiscount = order.getOrderAmountWithBenefits();
         printer.printRecMessage(makeSpacesFormatString("СУММА ЗАКАЗА", "=" + orderSum));
         printer.printRecMessage(makeSpacesFormatString("СУММА С УЧЕТОМ СКИДКИ", "=" + orderSumDiscount));
+        printer.printRecMessage(makeSpacesFormatString(getTextPaymentType(1), "=" + orderSumDiscount));
     }
 
     private void printPartitionSaleSubTotal(ShtrihFiscalPrinter printer) throws JposException, JSONException {
@@ -235,6 +238,7 @@ public class Receipt {
         //long orderSumDiscount = order.getOrderAmountWithBenefits();
         printer.printRecMessage(makeSpacesFormatString("СУММА ЗАКАЗА", "=" + orderSum));
         printer.printRecMessage(makeSpacesFormatString("СУММА С УЧЕТОМ СКИДКИ", "=" + orderSum));
+        printer.printRecMessage(makeSpacesFormatString(getTextPaymentType(2), "=" + orderSum));
     }
 
     private void printRefundSubTotal(ShtrihFiscalPrinter printer, Integer paymentType) throws JposException {
