@@ -66,7 +66,7 @@ public class Receipt {
         printFullSaleItems(printer, order.getServs(), UNIT_NAME_SALE);
         printDiscount(printer);
         printFullSubTotal(printer);
-        printTotal(printer);
+        printFullSaleTotal(printer);
         printer.endFiscalReceipt(false);
     }
 
@@ -79,7 +79,7 @@ public class Receipt {
         printPartitionSaleItems(printer, deepLinkSum, order.getServs(), UNIT_NAME_SALE);
         printDiscount(printer);
         printPartitionSaleSubTotal(printer);
-        printTotal(printer);
+        printPartitionSaleTotal(printer);
         printer.endFiscalReceipt(false);
     }
 
@@ -234,11 +234,12 @@ public class Receipt {
     }
 
     private void printPartitionSaleSubTotal(ShtrihFiscalPrinter printer) throws JposException, JSONException {
-        double orderSum = AppUtil.getSumSalePaymentFromDeepLink(deepLinkData);
-        //long orderSumDiscount = order.getOrderAmountWithBenefits();
+        double sendOrderSum = AppUtil.getSumSalePaymentFromDeepLink(deepLinkData);
+        long orderSum = order.getOrderAmount(); //не уверен
+        long orderSumDiscount = order.getOrderAmountWithBenefits();
         printer.printRecMessage(makeSpacesFormatString("СУММА ЗАКАЗА", "=" + orderSum));
-        printer.printRecMessage(makeSpacesFormatString("СУММА С УЧЕТОМ СКИДКИ", "=" + orderSum));
-        printer.printRecMessage(makeSpacesFormatString(getTextPaymentType(2), "=" + orderSum));
+        printer.printRecMessage(makeSpacesFormatString("СУММА С УЧЕТОМ СКИДКИ", "=" + orderSumDiscount));
+        printer.printRecMessage(makeSpacesFormatString(getTextPaymentType(2), "=" + sendOrderSum));
     }
 
     private void printRefundSubTotal(ShtrihFiscalPrinter printer, Integer paymentType) throws JposException {
@@ -249,7 +250,7 @@ public class Receipt {
         printer.printRecMessage(makeSpacesFormatString(getTextPaymentType(paymentType), "=" + orderSum));
     }
 
-    private void printTotal(ShtrihFiscalPrinter printer) throws Exception {
+    private void printFullSaleTotal(ShtrihFiscalPrinter printer) throws Exception {
         JSONObject operationData = deepLinkData.getJSONObject("operation_data");
         long paymentCash = operationData.getInt("payment_cash") * 100;
         if (paymentCash != 0) {
@@ -258,6 +259,20 @@ public class Receipt {
         long paymentCard = operationData.getInt("payment_card") * 100;
         if (paymentCard != 0) {
             printer.printRecTotal(paymentCard, paymentCard, "2");
+        }
+    }
+
+    private void printPartitionSaleTotal(ShtrihFiscalPrinter printer) throws Exception {
+        JSONObject operationData = deepLinkData.getJSONObject("operation_data");
+        long orderSum = order.getOrderAmountWithBenefits() * 100;
+
+        long paymentCash = operationData.getInt("payment_cash") * 100;
+        if (paymentCash != 0) {
+            printer.printRecTotal(orderSum, paymentCash, "0");
+        }
+        long paymentCard = operationData.getInt("payment_card") * 100;
+        if (paymentCard != 0) {
+            printer.printRecTotal(orderSum, paymentCard, "2");
         }
     }
 
