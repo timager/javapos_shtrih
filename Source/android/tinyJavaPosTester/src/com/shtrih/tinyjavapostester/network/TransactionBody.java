@@ -179,7 +179,7 @@ public class TransactionBody {
 
             jsonObject.put("operation_payments", operationPayments);
 
-            List<Double> partPriceList = AppUtil.getListServicePaymentByPartition(order.getServs(), order.getOrderAmount(), partitionSumSale);
+            List<Double> partPriceList = AppUtil.getListServicePaymentByPartition(order.getServs(), order.getOrderAmountWithBenefits(), partitionSumSale);
 
             JSONArray servs = new JSONArray();
             for (int i = 0; i < order.getServs().size(); i++) {
@@ -322,7 +322,7 @@ public class TransactionBody {
             jsonObject.put("operation_payments", operationPayments);
 
             JSONArray servs = new JSONArray();
-            List<Double> partPriceList = AppUtil.getListServicePaymentByPartition(order.getServs(), order.getOrderAmount(), sumRefund);
+            List<Double> partPriceList = AppUtil.getListServicePaymentByPartition(order.getServs(), order.getOrderAmountWithBenefits(), sumRefund);
 
             for (int i = 0; i < order.getServs().size(); i++) {
                 OrderResponse.Serv serv = order.getServs().get(i);

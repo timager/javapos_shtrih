@@ -151,7 +151,7 @@ public class Receipt {
         // Коэфициент между суммой возврата и общей суммой
         double sumRate = partitionSum / order.getOrderAmount();
 
-        List<Double> printPriceList = AppUtil.getListServicePaymentByPartition(items, order.getOrderAmount(), partitionSum);
+        List<Double> printPriceList = AppUtil.getListServicePaymentByPartition(items, order.getOrderAmountWithBenefits(), partitionSum);
         for (int i = 0; i < items.size(); i++) {
             OrderResponse.Serv serv = items.get(i);
             Double printPrice = printPriceList.get(i);
@@ -176,15 +176,15 @@ public class Receipt {
             long discount = price - priceDiscount;
             int taxType = serv.getServTax();
             printer.printRecItemRefund(serv.getServCode() + " " + serv.getServName(), price, 0, taxType, 0, unitName);
+            printer.printRecItemAdjustment(FiscalPrinterConst.FPTR_AT_AMOUNT_DISCOUNT, "", discount, taxType);
             printPaymentType(printer, fiscalReceiptType);
-//            printer.printRecItemAdjustment(FiscalPrinterConst.FPTR_AT_AMOUNT_DISCOUNT, "", discount, taxType);
             printer.printRecMessage("------------");
         }
     }
 
     private void printRefundItemsByTransaction(ShtrihFiscalPrinter printer, double sumRefund, String unitName, int fiscalReceiptType) throws Exception {
         List<OrderResponse.Serv> servs = order.getServs();
-        List<Double> printPriceList = AppUtil.getListServicePaymentByPartition(servs, order.getOrderAmount(), sumRefund);
+        List<Double> printPriceList = AppUtil.getListServicePaymentByPartition(servs, order.getOrderAmountWithBenefits(), sumRefund);
 
         for (int i = 0; i < servs.size(); i++) {
             OrderResponse.Serv serv = servs.get(i);
@@ -281,7 +281,7 @@ public class Receipt {
         double sumPayment = 0;
 
         for (OrderResponse.Serv serv : refundServiceList) {
-            sumPayment += Double.parseDouble(serv.getServCost());
+            sumPayment += Double.parseDouble(serv.getServCostD());
         }
 
         // Терминал принимает сумму в копейках
