@@ -180,16 +180,18 @@ public class TransactionBody {
 
             jsonObject.put("operation_payments", operationPayments);
 
-            List<Double> partPriceList = AppUtil.getListServicePaymentByPartition(order.getServs(), order.getOrderAmountWithBenefits(), partitionSumSale);
+            List<Pair<Long, Long>> printPriceWithDiscountPennyList = AppUtil.getListPricePennyWithDiscountPennyByPartition(order, (long) (partitionSumSale * 100));
 
             JSONArray servs = new JSONArray();
             for (int i = 0; i < order.getServs().size(); i++) {
                 OrderResponse.Serv serv = order.getServs().get(i);
-                double partPrice = partPriceList.get(i);
+                Pair<Long, Long> priceWithDiscount = printPriceWithDiscountPennyList.get(i);
+
+                double price = ((double) (priceWithDiscount.first - priceWithDiscount.second)) / 100;
 
                 JSONObject service = new JSONObject();
                 service.put("serv_id", serv.getServId());
-                service.put("serv_current_pay", partPrice);
+                service.put("serv_current_pay", price);
                 servs.put(service);
             }
 

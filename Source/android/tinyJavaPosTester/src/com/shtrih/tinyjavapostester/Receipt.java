@@ -154,19 +154,15 @@ public class Receipt {
         // Коэфициент между суммой возврата и общей суммой
         double sumRate = partitionSum / order.getOrderAmount();
 
-        List<Double> printPriceList = AppUtil.getListServicePaymentByPartition(items, order.getOrderAmountWithBenefits(), partitionSum);
+        List<Pair<Long, Long>> printPriceWithDiscountPennyList = AppUtil.getListPricePennyWithDiscountPennyByPartition(order, (long) (partitionSum * 100));
         for (int i = 0; i < items.size(); i++) {
             OrderResponse.Serv serv = items.get(i);
-            Double printPrice = printPriceList.get(i);
-            long printPricePenny = (long) (printPrice * 100);
+            Pair<Long, Long> printPriceWithDiscount = printPriceWithDiscountPennyList.get(i);
 
-            long pricePenny = (long) (Double.parseDouble(serv.getServCost()) * 100);
-            long priceWithDiscountPenny = (long) (Double.parseDouble(serv.getServCostD()) * 100);
-            long discountPenny = pricePenny - priceWithDiscountPenny;
             int taxType = serv.getServTax();
 
-            printer.printRecItem(serv.getServCode() + " " + serv.getServName(), printPricePenny, 0, taxType, 0, unitName);
-            printer.printRecItemAdjustment(FiscalPrinterConst.FPTR_AT_AMOUNT_DISCOUNT, "", discountPenny, taxType);
+            printer.printRecItem(serv.getServCode() + " " + serv.getServName(), printPriceWithDiscount.first, 0, taxType, 0, unitName);
+            printer.printRecItemAdjustment(FiscalPrinterConst.FPTR_AT_AMOUNT_DISCOUNT, "", printPriceWithDiscount.second, taxType);
             printer.printRecMessage(makeSpacesFormatString(getTextPaymentType(2), CONST_WORD_PAYMENT));
             printer.printRecMessage("------------");
         }
