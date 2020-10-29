@@ -91,26 +91,26 @@ public class AppUtil {
         return false;
     }
 
-    public static List<Double> getListServicePaymentByPartition(List<OrderResponse.Serv> services, double fullSum, double partSum) {
-        double rate = partSum / fullSum;
-        Integer lastIndexNotNullSum = getLastIndexNotZeroPrice(services);
-
-        List<Double> listResult = services.stream()
-                .map(serv -> Double.parseDouble(serv.getServCostD()))
-                .map(servCost -> servCost != 0 ? servCost * rate : 0d)
-                .map(servCost -> new BigDecimal(servCost).setScale(2, RoundingMode.FLOOR).doubleValue())
-                .collect(Collectors.toList());
-
-
-        if (lastIndexNotNullSum != null) {
-            double prepareResultCost = listResult.stream().reduce(0d, Double::sum);
-            double remain = partSum - prepareResultCost;
-
-            listResult.set(lastIndexNotNullSum, listResult.get(lastIndexNotNullSum) + remain);
-        }
-
-        return listResult;
-    }
+//    public static List<Double> getListServicePaymentByPartition(List<OrderResponse.Serv> services, double fullSum, double partSum) {
+//        double rate = partSum / fullSum;
+//        Integer lastIndexNotNullSum = getLastIndexNotZeroPrice(services);
+//
+//        List<Double> listResult = services.stream()
+//                .map(serv -> Double.parseDouble(serv.getServCostD()))
+//                .map(servCost -> servCost != 0 ? servCost * rate : 0d)
+//                .map(servCost -> new BigDecimal(servCost).setScale(2, RoundingMode.FLOOR).doubleValue())
+//                .collect(Collectors.toList());
+//
+//
+//        if (lastIndexNotNullSum != null) {
+//            double prepareResultCost = listResult.stream().reduce(0d, Double::sum);
+//            double remain = partSum - prepareResultCost;
+//
+//            listResult.set(lastIndexNotNullSum, listResult.get(lastIndexNotNullSum) + remain);
+//        }
+//
+//        return listResult;
+//    }
 
     public static List<Pair<Long, Long>> getListPricePennyWithDiscountPennyByPartition(OrderResponse.Order order, long partSumPenny) {
         long fullSumPenny = order.getOrderAmountWithBenefits() * 100;
