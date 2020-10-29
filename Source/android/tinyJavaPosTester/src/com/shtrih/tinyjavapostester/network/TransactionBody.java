@@ -1,6 +1,7 @@
 package com.shtrih.tinyjavapostester.network;
 
 import android.os.Build;
+import android.util.Pair;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -322,15 +323,16 @@ public class TransactionBody {
             jsonObject.put("operation_payments", operationPayments);
 
             JSONArray servs = new JSONArray();
-            List<Double> partPriceList = AppUtil.getListServicePaymentByPartition(order.getServs(), order.getOrderAmountWithBenefits(), sumRefund);
+            List<Pair<Long, Long>> partPriceWithDiscountPennyList = AppUtil.getListPricePennyWithDiscountPennyByPartition(order, (long) (sumRefund * 100));
 
             for (int i = 0; i < order.getServs().size(); i++) {
                 OrderResponse.Serv serv = order.getServs().get(i);
-                double partPrice = partPriceList.get(i);
+                Pair<Long, Long> priceWithDiscountPennyPair = partPriceWithDiscountPennyList.get(i);
+                double price = ((double) (priceWithDiscountPennyPair.first - priceWithDiscountPennyPair.second)) / 100;
 
                 JSONObject service = new JSONObject();
                 service.put("serv_id", serv.getServId());
-                service.put("serv_current_pay", "-" + partPrice);
+                service.put("serv_current_pay", "-" + price);
                 service.put("pay_id", 1);
                 servs.put(service);
             }
