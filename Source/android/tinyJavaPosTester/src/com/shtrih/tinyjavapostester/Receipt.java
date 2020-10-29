@@ -35,12 +35,13 @@ public class Receipt {
     }
 
     private void printReceiptHeader(ShtrihFiscalPrinter printer) throws JposException {
-        printer.setNumHeaderLines(5);
-        printer.setHeaderLine(1, "* " + "ОАО Тестовая клиника", false);
-        printer.setHeaderLine(2, "* " + "\"Колебн и Тим\"", false);
-        printer.setHeaderLine(3, "* " + "г. Тестов ул. Тестов д.228", false);
-        printer.setHeaderLine(4, "Заказ № " + order.getOrderNumber(), false);
-        printer.setHeaderLine(5, "----------------------------", false);
+        printer.setNumHeaderLines(6);
+        printer.setHeaderLine(1, "* " + "ФБУН ЦНИИ ЭПИДЕМИОЛОГИИ", false);
+        printer.setHeaderLine(2, "* " + "РОСПОТРЕБНАДЗОРА", false);
+        printer.setHeaderLine(3, "* " + "г. Москва", false);
+        printer.setHeaderLine(4, "* " + "ул. Новогиреевская, д. 3А", false);
+        printer.setHeaderLine(5, "Заказ № " + order.getOrderNumber(), false);
+        printer.setHeaderLine(6, "----------------------------", false);
     }
 
     public void print(ShtrihFiscalPrinter printer) throws Exception {
