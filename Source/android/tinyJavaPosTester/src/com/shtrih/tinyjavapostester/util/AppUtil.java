@@ -1,5 +1,7 @@
 package com.shtrih.tinyjavapostester.util;
 
+import android.util.Pair;
+
 import com.shtrih.tinyjavapostester.network.OrderResponse;
 import com.shtrih.tinyjavapostester.network.TransactionHistoryItem;
 
@@ -61,7 +63,6 @@ public class AppUtil {
     }
 
 
-
     public static double getSumRefundByReasonFromData(JSONObject deepLinkData, OrderResponse.Order order) throws JSONException {
         return deepLinkData.getJSONObject("operation_data").getDouble("sum");
     }
@@ -109,6 +110,54 @@ public class AppUtil {
         }
 
         return listResult;
+    }
+
+    public static List<Pair<Long, Long>> getListPricePennyWithDiscountPennyByPartition(OrderResponse.Order order, long partSumPenny) {
+        long fullSumPenny = order.getOrderAmountWithBenefits() * 100;
+
+        double rate = ((double) partSumPenny) / ((double) fullSumPenny);
+        Integer lastIndexNotNullPrice = getLastIndexNotZeroPrice(order.getServs());
+
+        List<Pair<Long, Long>> listResult = order.getServs().stream()
+                .map(serv -> {
+                    double price = Double.parseDouble(serv.getServCost());
+                    double discount = price - Double.parseDouble(serv.getServCostD());
+
+                    return new Pair<Double, Double>(price, discount);
+                })
+
+                .map(pair -> {
+                    double newPrice = 0d;
+                    double newDiscount = 0d;
+
+                    if (pair.first != 0) {
+                        newPrice = pair.first * rate;
+                    }
+
+                    if (pair.second != 0) {
+                        newDiscount = pair.second * rate;
+                    }
+
+                    return new Pair<Double, Double>(newPrice, newDiscount);
+                })
+                .map(pair -> new Pair<Double, Double>(floor(pair.first), floor(pair.second)))
+                .map(pair -> new Pair<Long, Long>((long)(pair.first * 100), (long)(pair.second * 100)))
+                .collect(Collectors.toList());
+
+        if (lastIndexNotNullPrice != null) {
+            long prepareResultPricePenny = listResult.stream().map(pair -> pair.first - pair.second).reduce(0L, Long::sum);
+
+            long remainPenny = partSumPenny - prepareResultPricePenny;
+            Pair<Long, Long> lastNotNullPricePair = listResult.get(lastIndexNotNullPrice);
+
+            listResult.set(lastIndexNotNullPrice, new Pair<Long, Long>(lastNotNullPricePair.first + remainPenny, lastNotNullPricePair.second));
+        }
+
+        return listResult;
+    }
+
+    public static Double floor(double number) {
+        return new BigDecimal(number).setScale(2, RoundingMode.FLOOR).doubleValue();
     }
 
     public static Integer getLastIndexNotZeroPrice(List<OrderResponse.Serv> services) {

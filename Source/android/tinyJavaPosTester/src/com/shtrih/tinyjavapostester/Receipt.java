@@ -1,5 +1,7 @@
 package com.shtrih.tinyjavapostester;
 
+import android.util.Pair;
+
 import com.shtrih.fiscalprinter.ShtrihFiscalPrinter;
 import com.shtrih.fiscalprinter.SmFiscalPrinterException;
 import com.shtrih.fiscalprinter.command.FSDocType;
@@ -184,14 +186,15 @@ public class Receipt {
 
     private void printRefundItemsByTransaction(ShtrihFiscalPrinter printer, double sumRefund, String unitName, int fiscalReceiptType) throws Exception {
         List<OrderResponse.Serv> servs = order.getServs();
-        List<Double> printPriceList = AppUtil.getListServicePaymentByPartition(servs, order.getOrderAmountWithBenefits(), sumRefund);
+        List<Pair<Long, Long>> printPriceList = AppUtil.getListPricePennyWithDiscountPennyByPartition( order, ((long)sumRefund * 100));
 
         for (int i = 0; i < servs.size(); i++) {
             OrderResponse.Serv serv = servs.get(i);
-            long printPricePenny = (long) (printPriceList.get(i) * 100);
+            Pair<Long, Long> printPricePennyWithDiscount = printPriceList.get(i);
             int taxType = serv.getServTax();
 
-            printer.printRecItemRefund(serv.getServCode() + " " + serv.getServName(), printPricePenny, 0, taxType, 0, unitName);
+            printer.printRecItemRefund(serv.getServCode() + " " + serv.getServName(), printPricePennyWithDiscount.first, 0, taxType, 0, unitName);
+            printer.printRecItemAdjustment(FiscalPrinterConst.FPTR_AT_AMOUNT_DISCOUNT, "", printPricePennyWithDiscount.second, taxType);
             printPaymentType(printer, fiscalReceiptType);
             printer.printRecMessage("------------");
         }
