@@ -102,6 +102,7 @@ public class Receipt {
         printer.beginFiscalReceipt(true);
         writeTags(printer);
         printRefundItems(printer, refundServiceList, UNIT_NAME_REFUND, fiscalReceiptType);
+        printDiscount(printer);
         printRefundSubTotal(printer, fiscalReceiptType);
         printRefundTotal(printer, refundServiceList);
         printer.endFiscalReceipt(false);
@@ -117,6 +118,7 @@ public class Receipt {
         printer.beginFiscalReceipt(true);
         writeTags(printer);
         printRefundItemsByTransaction(printer, sumRefund, UNIT_NAME_REFUND, fiscalReceiptType);
+        printDiscount(printer);
         printRefundSubTotal(printer, fiscalReceiptType);
         printRefundTotalByTransaction(printer, sumRefund);
         printer.endFiscalReceipt(false);
@@ -312,6 +314,7 @@ public class Receipt {
         long sumPennyPayment = (long) (deepLinkData.getJSONObject("operation_data").getDouble("sum") * 100);
 
         printer.printRecRefund(reason, sumPennyPayment, 0);
+        printDiscount(printer);
         printer.printRecTotal(sumPennyPayment, sumPennyPayment, "0");
     }
 
