@@ -24,7 +24,6 @@ import jpos.JposException;
 public class Receipt {
     private final String UNIT_NAME_SALE = "Оплата";
     private final String UNIT_NAME_REFUND = "Возврат";
-    private final String CONST_WORD_PAYMENT = "ПЛАТЕЖ";
 
     private OrderResponse.Order order;
     private JSONObject deepLinkData;
@@ -97,7 +96,6 @@ public class Receipt {
             }
         }
 
-        printer.setParameter(SmFptrConst.SMFPTR_DIO_PARAM_ITEM_PAYMENT_TYPE, fiscalReceiptType);
         printer.setFiscalReceiptType(FiscalPrinterConst.FPTR_RT_REFUND);
         printer.beginFiscalReceipt(true);
         writeTags(printer);
@@ -113,7 +111,6 @@ public class Receipt {
 
         double sumRefund = AppUtil.getSumRefundTransactionFromData(deepLinkData, order);
 
-        printer.setParameter(SmFptrConst.SMFPTR_DIO_PARAM_ITEM_PAYMENT_TYPE, fiscalReceiptType);
         printer.setFiscalReceiptType(FiscalPrinterConst.FPTR_RT_REFUND);
         printer.beginFiscalReceipt(true);
         writeTags(printer);
@@ -127,11 +124,10 @@ public class Receipt {
     private void printRefundByReason(ShtrihFiscalPrinter printer) throws Exception {
         int fiscalReceiptType = deepLinkData.getJSONObject("operation_data").getInt("fiscal");
 
-        printer.setParameter(SmFptrConst.SMFPTR_DIO_PARAM_ITEM_PAYMENT_TYPE, fiscalReceiptType);
         printer.setFiscalReceiptType(FiscalPrinterConst.FPTR_RT_REFUND);
         printer.beginFiscalReceipt(true);
         writeTags(printer);
-        printRefundTotalByReason(printer);
+        printRefundTotalByReason(printer, fiscalReceiptType);
         printer.endFiscalReceipt(false);
     }
 
@@ -140,19 +136,28 @@ public class Receipt {
     }
 
     private void printFullSaleItems(ShtrihFiscalPrinter printer, List<OrderResponse.Serv> items, String unitName) throws JposException {
+        int paymentTypeId = 1;
+        int subjectTypeId = 10;
+
         for (OrderResponse.Serv serv : items) {
             long price = Long.parseLong(serv.getServCost().replace(".", "")) / 100;
             long priceDiscount = Long.parseLong(serv.getServCostD().replace(".", "")) / 100;
             long discount = price - priceDiscount;
             int taxType = serv.getServTax();
+
+            setParameterForItem(printer, paymentTypeId, subjectTypeId);
+
             printer.printRecItem(serv.getServCode() + " " + serv.getServName(), price, 0, taxType, 0, unitName);
             printer.printRecItemAdjustment(FiscalPrinterConst.FPTR_AT_AMOUNT_DISCOUNT, "", discount, taxType);
-            printer.printRecMessage(makeSpacesFormatString(getTextPaymentType(1), CONST_WORD_PAYMENT));
+            printPaymentAndSubjectType(printer, paymentTypeId, subjectTypeId);
             printer.printRecMessage("------------");
         }
     }
 
     private void printPartitionSaleItems(ShtrihFiscalPrinter printer, double partitionSum, List<OrderResponse.Serv> items, String unitName) throws JposException {
+        int paymentTypeId = 2;
+        int subjectTypeId = 10;
+
         // Коэфициент между суммой возврата и общей суммой
         double sumRate = partitionSum / order.getOrderAmount();
 
@@ -163,27 +168,38 @@ public class Receipt {
 
             int taxType = serv.getServTax();
 
+            setParameterForItem(printer, paymentTypeId, subjectTypeId);
+
             printer.printRecItem(serv.getServCode() + " " + serv.getServName(), printPriceWithDiscount.first, 0, taxType, 0, unitName);
             printer.printRecItemAdjustment(FiscalPrinterConst.FPTR_AT_AMOUNT_DISCOUNT, "", printPriceWithDiscount.second, taxType);
-            printer.printRecMessage(makeSpacesFormatString(getTextPaymentType(2), CONST_WORD_PAYMENT));
+            printPaymentAndSubjectType(printer, paymentTypeId, subjectTypeId);
             printer.printRecMessage("------------");
         }
     }
 
     private void printRefundItems(ShtrihFiscalPrinter printer, List<OrderResponse.Serv> items, String unitName, int fiscalReceiptType) throws Exception {
+        int paymentTypeId = fiscalReceiptType;
+        int subjectTypeId = 10;
+
         for (OrderResponse.Serv serv : items) {
             long price = Long.parseLong(serv.getServCost().replace(".", "")) / 100;
             long priceDiscount = Long.parseLong(serv.getServCostD().replace(".", "")) / 100;
             long discount = price - priceDiscount;
             int taxType = serv.getServTax();
+
+            setParameterForItem(printer, paymentTypeId, subjectTypeId);
+
             printer.printRecItemRefund(serv.getServCode() + " " + serv.getServName(), price, 0, taxType, 0, unitName);
             printer.printRecItemAdjustment(FiscalPrinterConst.FPTR_AT_AMOUNT_DISCOUNT, "", discount, taxType);
-            printPaymentType(printer, fiscalReceiptType);
+            printPaymentAndSubjectType(printer, paymentTypeId, subjectTypeId);
             printer.printRecMessage("------------");
         }
     }
 
     private void printRefundItemsByTransaction(ShtrihFiscalPrinter printer, double sumRefund, String unitName, int fiscalReceiptType) throws Exception {
+        int paymentTypeId = fiscalReceiptType;
+        int subjectTypeId = 10;
+
         List<OrderResponse.Serv> servs = order.getServs();
         List<Pair<Long, Long>> printPriceList = AppUtil.getListPricePennyWithDiscountPennyByPartition( order, ((long)sumRefund * 100));
 
@@ -192,9 +208,11 @@ public class Receipt {
             Pair<Long, Long> printPricePennyWithDiscount = printPriceList.get(i);
             int taxType = serv.getServTax();
 
+            setParameterForItem(printer, paymentTypeId, subjectTypeId);
+
             printer.printRecItemRefund(serv.getServCode() + " " + serv.getServName(), printPricePennyWithDiscount.first, 0, taxType, 0, unitName);
             printer.printRecItemAdjustment(FiscalPrinterConst.FPTR_AT_AMOUNT_DISCOUNT, "", printPricePennyWithDiscount.second, taxType);
-            printPaymentType(printer, fiscalReceiptType);
+            printPaymentAndSubjectType(printer, paymentTypeId, 10);
             printer.printRecMessage("------------");
         }
     }
@@ -232,7 +250,7 @@ public class Receipt {
         long orderSumDiscount = order.getOrderAmountWithBenefits();
         printer.printRecMessage(makeSpacesFormatString("СУММА ЗАКАЗА", "=" + orderSum));
         printer.printRecMessage(makeSpacesFormatString("СУММА С УЧЕТОМ СКИДКИ", "=" + orderSumDiscount));
-        printer.printRecMessage(makeSpacesFormatString(getTextPaymentType(1), "=" + orderSumDiscount));
+        printer.printRecMessage(makeSpacesFormatString(AppUtil.getPaymentTypeName(1).toUpperCase(), "=" + orderSumDiscount));
     }
 
     private void printPartitionSaleSubTotal(ShtrihFiscalPrinter printer) throws JposException, JSONException {
@@ -241,7 +259,7 @@ public class Receipt {
         long orderSumDiscount = order.getOrderAmountWithBenefits();
         printer.printRecMessage(makeSpacesFormatString("СУММА ЗАКАЗА", "=" + orderSum));
         printer.printRecMessage(makeSpacesFormatString("СУММА С УЧЕТОМ СКИДКИ", "=" + orderSumDiscount));
-        printer.printRecMessage(makeSpacesFormatString(getTextPaymentType(2), "=" + sendOrderSum));
+        printer.printRecMessage(makeSpacesFormatString(AppUtil.getPaymentTypeName(2).toUpperCase(), "=" + sendOrderSum));
     }
 
     private void printRefundSubTotal(ShtrihFiscalPrinter printer, Integer paymentType) throws JposException {
@@ -249,7 +267,7 @@ public class Receipt {
         long orderSumDiscount = order.getOrderAmountWithBenefits();
         printer.printRecMessage(makeSpacesFormatString("СУММА ЗАКАЗА", "=" + orderSum));
         printer.printRecMessage(makeSpacesFormatString("СУММА С УЧЕТОМ СКИДКИ", "=" + orderSumDiscount));
-        printer.printRecMessage(makeSpacesFormatString(getTextPaymentType(paymentType), "=" + orderSum));
+        printer.printRecMessage(makeSpacesFormatString(AppUtil.getPaymentTypeName(paymentType).toUpperCase(), "=" + orderSum));
     }
 
     private void printFullSaleTotal(ShtrihFiscalPrinter printer) throws Exception {
@@ -309,9 +327,14 @@ public class Receipt {
         }
     }
 
-    private void printRefundTotalByReason(ShtrihFiscalPrinter printer) throws JSONException, JposException {
+    private void printRefundTotalByReason(ShtrihFiscalPrinter printer, int fiscalReceiptType) throws JSONException, JposException {
+        int paymentTypeId = fiscalReceiptType;
+        int subjectTypeId = 10;
+
         String reason = deepLinkData.getJSONObject("operation_data").getString("claim");
         long sumPennyPayment = (long) (deepLinkData.getJSONObject("operation_data").getDouble("sum") * 100);
+
+        setParameterForItem(printer, paymentTypeId, subjectTypeId);
 
         printer.printRecRefund(reason, sumPennyPayment, 0);
         printDiscount(printer);
@@ -337,27 +360,17 @@ public class Receipt {
         printer.resetPrinter();
     }
 
-    private void printPaymentType(ShtrihFiscalPrinter printer, Integer paymentType) throws JposException {
-        String text = getTextPaymentType(paymentType);
-        if (text != null) {
-            printer.printRecMessage(text);
-        }
+    private void setParameterForItem(ShtrihFiscalPrinter printer, int paymentTypeId, int subjectTypeId) throws JposException {
+        printer.setParameter(SmFptrConst.SMFPTR_DIO_PARAM_ITEM_PAYMENT_TYPE, paymentTypeId);
+        printer.setParameter(SmFptrConst.SMFPTR_DIO_PARAM_ITEM_SUBJECT_TYPE, subjectTypeId);
     }
 
-    private String getTextPaymentType(Integer paymentType) {
-        switch (paymentType) {
-            case 1:
-                return "ПРЕДОПЛАТА 100%";
-            case 2:
-                return "ЧАСТИЧНАЯ ПРЕДОПЛАТА";
-            case 4:
-                return "ПОЛНЫЙ РАСЧЕТ";
-            case 5:
-                return "ЧАСТИЧНЫЙ РАСЧЕТ";
+    private void printPaymentAndSubjectType(ShtrihFiscalPrinter printer, int paymentTypeId, int subjectTypeId) throws JposException {
+        String paymentTypeText = AppUtil.getPaymentTypeName(paymentTypeId).toUpperCase();
+        String subjectTypeText = AppUtil.getSubjectTypeName(subjectTypeId).toUpperCase();
+
+        if (paymentTypeText != null && subjectTypeText != null) {
+            printer.printRecMessage(makeSpacesFormatString(paymentTypeText, subjectTypeText));
         }
-
-        return null;
     }
-
-
 }

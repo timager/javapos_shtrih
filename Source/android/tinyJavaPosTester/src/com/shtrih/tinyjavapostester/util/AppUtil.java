@@ -141,7 +141,7 @@ public class AppUtil {
                     return new Pair<Double, Double>(newPrice, newDiscount);
                 })
                 .map(pair -> new Pair<Double, Double>(floor(pair.first), floor(pair.second)))
-                .map(pair -> new Pair<Long, Long>((long)(pair.first * 100), (long)(pair.second * 100)))
+                .map(pair -> new Pair<Long, Long>((long) (pair.first * 100), (long) (pair.second * 100)))
                 .collect(Collectors.toList());
 
         if (lastIndexNotNullPrice != null) {
@@ -210,5 +210,58 @@ public class AppUtil {
 
     public static boolean isRefund(JSONObject deepLinkData) {
         return deepLinkData.optInt("operation_type") == 2;
+    }
+
+    public static String getSubjectTypeName(Integer id) {
+        switch (id) {
+            case 1:
+                return "Товар";
+            case 2:
+                return "Подакцизный товар";
+            case 3:
+                return "Работа";
+            case 4:
+                return "Услуга";
+            case 5:
+                return "Ставка азартной игры";
+            case 6:
+                return "Выигрыш азартной игры";
+            case 7:
+                return "Лотерейный билет";
+            case 8:
+                return "Выигрыш лотереи";
+            case 9:
+                return "Предоставление РИД";
+            case 10:
+                return "Платеж";
+            case 11:
+                return "Составной предмет расчета";
+            case 12:
+                return "Иной предмет расчета";
+        }
+
+        return null;
+    }
+
+    public static String getPaymentTypeName(Integer id) {
+        switch (id) {
+            case 1:
+                return "Предоплата 100%";
+            case 2:
+                return "Частичная предоплата";
+            case 3:
+                return "Аванс";
+            case 4:
+                return "Полный расчет";
+            case 5:
+                //return "Частичный расчет и кредит";
+                return "Частичный расчет";
+            case 6:
+                return "Передача в кредит";
+            case 7:
+                return "Оплата кредита";
+        }
+
+        return null;
     }
 }
