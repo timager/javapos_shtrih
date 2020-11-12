@@ -9,6 +9,7 @@ import com.shtrih.fiscalprinter.command.FSStatusInfo;
 import com.shtrih.fiscalprinter.command.LongPrinterStatus;
 import com.shtrih.jpos.fiscalprinter.JposExceptionHandler;
 import com.shtrih.jpos.fiscalprinter.SmFptrConst;
+import com.shtrih.tinyjavapostester.application.App;
 import com.shtrih.tinyjavapostester.network.OrderResponse;
 import com.shtrih.tinyjavapostester.util.AppUtil;
 
@@ -46,6 +47,11 @@ public class Receipt {
     public void print(ShtrihFiscalPrinter printer) throws Exception {
         prepare(printer);
         printer.setFontNumber(1);
+
+        String cashierName = deepLinkData.getString("username");
+        setParameterCashierName(printer, cashierName);
+        App.saveCashierName(cashierName);
+
         printReceiptHeader(printer);
 
         if (AppUtil.isFullSale(deepLinkData, order)) {
@@ -133,6 +139,10 @@ public class Receipt {
 
     private void writeTags(ShtrihFiscalPrinter printer) throws Exception {
         printer.fsWriteTag(1021, deepLinkData.getString("username"));
+    }
+
+    private void setParameterCashierName(ShtrihFiscalPrinter printer, String name) throws Exception {
+        printer.writeCashierName(name);
     }
 
     private void printFullSaleItems(ShtrihFiscalPrinter printer, List<OrderResponse.Serv> items, String unitName) throws JposException {
