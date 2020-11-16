@@ -54,4 +54,9 @@
     <string name="lblFFDVersion">FFD Version</string>
     <string name="dataStr">Данные</string>
     <string name="repeatBtn">Повторить</string>
+
+    <string name="print_receipt_phase_prepare_printer">Этап 1 - Подготовка принтера</string>
+    <string name="print_receipt_phase_send_data_to_printer">Этап 2 - Передача данных для чека</string>
+    <string name="print_receipt_phase_print_receipt">Этап 3 - Печать чека</string>
+    <string name="print_receipt_phase_send_to_server">Этап 4 - Отправка результата на сервер</string>
 </resources>

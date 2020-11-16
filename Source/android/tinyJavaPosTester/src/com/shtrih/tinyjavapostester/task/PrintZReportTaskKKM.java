@@ -2,7 +2,6 @@ package com.shtrih.tinyjavapostester.task;
 
 import com.shtrih.fiscalprinter.ShtrihFiscalPrinter;
 import com.shtrih.tinyjavapostester.activity.AbstractActivity;
-import com.shtrih.tinyjavapostester.activity.MainActivity;
 import com.shtrih.tinyjavapostester.MainViewModel;
 import com.shtrih.tinyjavapostester.task.message.Message;
 

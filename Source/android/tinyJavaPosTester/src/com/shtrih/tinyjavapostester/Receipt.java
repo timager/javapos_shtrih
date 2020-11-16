@@ -11,6 +11,7 @@ import com.shtrih.jpos.fiscalprinter.JposExceptionHandler;
 import com.shtrih.jpos.fiscalprinter.SmFptrConst;
 import com.shtrih.tinyjavapostester.network.OrderResponse;
 import com.shtrih.tinyjavapostester.util.AppUtil;
+import com.shtrih.tinyjavapostester.util.ToastUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -44,10 +45,12 @@ public class Receipt {
     }
 
     public void print(ShtrihFiscalPrinter printer) throws Exception {
+        ToastUtil.showMessage(R.string.print_receipt_phase_prepare_printer);
         prepare(printer);
         printer.setFontNumber(1);
         printReceiptHeader(printer);
 
+        ToastUtil.showMessage(R.string.print_receipt_phase_send_data_to_printer);
         if (AppUtil.isFullSale(deepLinkData, order)) {
             printFullSales(printer);
         } else if (AppUtil.isPartitionSale(deepLinkData, order)) {
@@ -69,6 +72,8 @@ public class Receipt {
         printDiscount(printer);
         printFullSubTotal(printer);
         printFullSaleTotal(printer);
+
+        ToastUtil.showMessage(R.string.print_receipt_phase_print_receipt);
         printer.endFiscalReceipt(false);
     }
 
@@ -82,6 +87,8 @@ public class Receipt {
         printDiscount(printer);
         printPartitionSaleSubTotal(printer);
         printPartitionSaleTotal(printer);
+
+        ToastUtil.showMessage(R.string.print_receipt_phase_print_receipt);
         printer.endFiscalReceipt(false);
     }
 
@@ -103,6 +110,8 @@ public class Receipt {
         printDiscount(printer);
         printRefundSubTotal(printer, fiscalReceiptType);
         printRefundTotal(printer, refundServiceList);
+
+        ToastUtil.showMessage(R.string.print_receipt_phase_print_receipt);
         printer.endFiscalReceipt(false);
     }
 
@@ -118,6 +127,8 @@ public class Receipt {
         printDiscount(printer);
         printRefundSubTotal(printer, fiscalReceiptType);
         printRefundTotalByTransaction(printer, sumRefund);
+
+        ToastUtil.showMessage(R.string.print_receipt_phase_print_receipt);
         printer.endFiscalReceipt(false);
     }
 
@@ -128,6 +139,8 @@ public class Receipt {
         printer.beginFiscalReceipt(true);
         writeTags(printer);
         printRefundTotalByReason(printer, fiscalReceiptType);
+
+        ToastUtil.showMessage(R.string.print_receipt_phase_print_receipt);
         printer.endFiscalReceipt(false);
     }
 

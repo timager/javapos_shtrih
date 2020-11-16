@@ -24,6 +24,7 @@ import com.shtrih.tinyjavapostester.task.PrintXReportTaskKKM;
 import com.shtrih.tinyjavapostester.task.PrintZReportTaskKKM;
 import com.shtrih.tinyjavapostester.task.listener.Listener;
 import com.shtrih.tinyjavapostester.util.AppUtil;
+import com.shtrih.tinyjavapostester.util.ToastUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -105,6 +106,8 @@ public class MainActivity extends AbstractActivity {
 
 
     public void printReceipt(View view) {
+        ToastUtil.showMessage(R.string.print_receipt_phase_send_to_server);
+
         Receipt receipt = new Receipt(response.getOrder(), deepLinkData);
         new PrintReceiptTask(this, model, receipt, new Listener<Exception>() {
             @Override
