@@ -4,7 +4,6 @@ import com.shtrih.fiscalprinter.ShtrihFiscalPrinter;
 import com.shtrih.tinyjavapostester.activity.AbstractActivity;
 import com.shtrih.tinyjavapostester.activity.MainActivity;
 import com.shtrih.tinyjavapostester.MainViewModel;
-import com.shtrih.tinyjavapostester.application.App;
 import com.shtrih.tinyjavapostester.task.message.Message;
 
 public class PrintZReportTaskKKM extends AbstractTask {
@@ -21,10 +20,6 @@ public class PrintZReportTaskKKM extends AbstractTask {
     @Override
     protected void exec(ShtrihFiscalPrinter printer) throws Exception {
         printer.resetPrinter();
-
-        String cashierName = App.getCashierName();
-        printer.writeCashierName(cashierName);
-
         printer.printZReport();
     }
 

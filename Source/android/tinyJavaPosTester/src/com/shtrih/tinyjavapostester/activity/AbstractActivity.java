@@ -13,10 +13,8 @@ import android.widget.Toast;
 import com.shtrih.jpos.fiscalprinter.FirmwareUpdateObserver;
 import com.shtrih.tinyjavapostester.FirmwareUpdaterObserverImpl;
 import com.shtrih.tinyjavapostester.MainViewModel;
-import com.shtrih.tinyjavapostester.application.App;
 import com.shtrih.tinyjavapostester.databinding.ActivityMainBinding;
 import com.shtrih.tinyjavapostester.search.tcp.TcpDeviceSearchActivity;
-import com.shtrih.tinyjavapostester.shar_pref.SharedPreferenceKey;
 import com.shtrih.tinyjavapostester.task.AutoConnectBluetoothDeviceTask;
 import com.shtrih.tinyjavapostester.task.CheckDayOpenedTask;
 import com.shtrih.tinyjavapostester.task.ConnectToBluetoothDeviceTask;
@@ -27,6 +25,7 @@ import jpos.JposException;
 public abstract class AbstractActivity extends AppCompatActivity {
 
     public static final String TIMEOUT = "10000";
+    public static final String ADDRESS = "ADDRESS";
     protected MainViewModel model;
     protected String address;
 
@@ -34,7 +33,7 @@ public abstract class AbstractActivity extends AppCompatActivity {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        address = getApp().getApplicationSharPref().getString(SharedPreferenceKey.ADDRESS, null);
+        address = getPreferences(MODE_PRIVATE).getString(ADDRESS, null);
         ActivityMainBinding binding = DataBindingUtil.setContentView(this, chooseLayout());
         model = ViewModelProviders.of(this).get(MainViewModel.class);
         binding.setVm(model);
@@ -98,7 +97,7 @@ public abstract class AbstractActivity extends AppCompatActivity {
             }
         } else {
             this.address = address;
-            getApp().getApplicationSharPref().edit().putString(SharedPreferenceKey.ADDRESS, address).apply();
+            getPreferences(MODE_PRIVATE).edit().putString(ADDRESS, address).apply();
             useDayOpened();
         }
     }
@@ -170,9 +169,5 @@ public abstract class AbstractActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
             }
         });
-    }
-
-    protected final App getApp() {
-        return (App) getApplication();
     }
 }
