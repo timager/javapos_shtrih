@@ -106,12 +106,11 @@ public class MainActivity extends AbstractActivity {
 
 
     public void printReceipt(View view) {
-        ToastUtil.showMessage(R.string.print_receipt_phase_send_to_server);
-
         Receipt receipt = new Receipt(response.getOrder(), deepLinkData);
         new PrintReceiptTask(this, model, receipt, new Listener<Exception>() {
             @Override
             public void handle(final Exception value) {
+                ToastUtil.showMessage(R.string.print_receipt_phase_send_to_server);
                 createTransaction(value);
             }
         }).execute();
