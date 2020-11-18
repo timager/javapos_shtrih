@@ -9,9 +9,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.shtrih.tinyjavapostester.R;
+import com.shtrih.tinyjavapostester.application.App;
 import com.shtrih.tinyjavapostester.network.NetworkService;
 import com.shtrih.tinyjavapostester.network.OrderBody;
 import com.shtrih.tinyjavapostester.network.OrderResponse;
+import com.shtrih.tinyjavapostester.util.ToastUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,7 +37,13 @@ public class PayActivity extends AppCompatActivity {
             try {
                 JSONObject data = getJsonFromUrl(intent.getData());
                 dataTextField.setText(data.toString());
-                getOrderDataFromCmdAPI(data);
+
+                if (isLogin(data)) {
+                    logIn(data);
+                } else {
+                    getOrderDataFromCmdAPI(data);
+                }
+
             } catch (JSONException e) {
                 dataTextField.setText(e.getMessage());
             }
@@ -47,6 +55,17 @@ public class PayActivity extends AppCompatActivity {
     private JSONObject getJsonFromUrl(Uri url) throws JSONException {
         String json = Objects.requireNonNull(url.getQuery()).replaceAll("[/]+$", "");
         return new JSONObject(json);
+    }
+
+    private boolean isLogin(final JSONObject deepLinkData) throws JSONException {
+        return deepLinkData.getInt("operation_type") == 3;
+    }
+
+    private void logIn(final JSONObject deepLinkData) throws JSONException {
+        String username = deepLinkData.getString("username");
+        App.setCashierName(username);
+
+        ToastUtil.showMessage("Пользователь авторизован\n" + username);
     }
 
     private void getOrderDataFromCmdAPI(final JSONObject deepLinkData) {

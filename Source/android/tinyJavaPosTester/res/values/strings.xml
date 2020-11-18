@@ -59,4 +59,6 @@
     <string name="print_receipt_phase_send_data_to_printer">Этап 2 - Передача данных для чека</string>
     <string name="print_receipt_phase_print_receipt">Этап 3 - Печать чека</string>
     <string name="print_receipt_phase_send_to_server">Этап 4 - Отправка результата на сервер</string>
+
+    <string name="message_operation_stop_please_login">Операция приостановлена\nПожалуйста авторизуйтесь</string>
 </resources>
