@@ -37,6 +37,19 @@ public class AppUtil {
         return paymentCash + paymentCard;
     }
 
+
+    public static double getSumRefundFromData(JSONObject deepLinkData, OrderResponse.Order order) throws JSONException {
+        if (isRefundService(deepLinkData)) {
+            return getSumRefundServiceFromData(deepLinkData, order);
+        } else if (isRefundTransaction(deepLinkData)) {
+            return getSumRefundTransactionFromData(deepLinkData, order);
+        } else if (isRefundByReason(deepLinkData)) {
+            return getSumRefundByReasonFromData(deepLinkData, order);
+        }
+
+        return 0;
+    }
+
     public static double getSumRefundTransactionFromData(JSONObject deepLinkData, OrderResponse.Order order) throws JSONException {
         List<Integer> transactionRefundIdList = AppUtil.convertToListInteger(deepLinkData.getJSONObject("operation_data").getJSONArray("transactions"));
         double sumRefund = 0;
@@ -66,7 +79,6 @@ public class AppUtil {
     public static double getSumRefundByReasonFromData(JSONObject deepLinkData, OrderResponse.Order order) throws JSONException {
         return deepLinkData.getJSONObject("operation_data").getDouble("sum");
     }
-
 
     public static boolean isZeroPaymentFromDeepLink(JSONObject deepLinkData, OrderResponse.Order order) throws JSONException {
         if (deepLinkData == null || order == null)

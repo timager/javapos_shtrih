@@ -275,12 +275,15 @@ public class Receipt {
         printer.printRecMessage(makeSpacesFormatString(AppUtil.getPaymentTypeName(2).toUpperCase(), "=" + sendOrderSum));
     }
 
-    private void printRefundSubTotal(ShtrihFiscalPrinter printer, Integer paymentType) throws JposException {
+    private void printRefundSubTotal(ShtrihFiscalPrinter printer, Integer paymentType) throws JposException, JSONException {
+        double sumRefund = AppUtil.getSumRefundFromData(deepLinkData, order);
+
         long orderSum = order.getOrderAmount(); //не уверен
         long orderSumDiscount = order.getOrderAmountWithBenefits();
+
         printer.printRecMessage(makeSpacesFormatString("СУММА ЗАКАЗА", "=" + orderSum));
         printer.printRecMessage(makeSpacesFormatString("СУММА С УЧЕТОМ СКИДКИ", "=" + orderSumDiscount));
-        printer.printRecMessage(makeSpacesFormatString(AppUtil.getPaymentTypeName(paymentType).toUpperCase(), "=" + orderSum));
+        printer.printRecMessage(makeSpacesFormatString(AppUtil.getPaymentTypeName(paymentType).toUpperCase(), "=" + sumRefund));
     }
 
     private void printFullSaleTotal(ShtrihFiscalPrinter printer) throws Exception {

@@ -40,6 +40,7 @@ public class PayActivity extends AppCompatActivity {
 
                 if (isLogin(data)) {
                     logIn(data);
+                    startMainActivity();
                 } else {
                     getOrderDataFromCmdAPI(data);
                 }
@@ -99,6 +100,11 @@ public class PayActivity extends AppCompatActivity {
         Intent intent = new Intent(PayActivity.this, MainActivity.class);
         intent.putExtra(MainActivity.ORDER_RESPONSE, data);
         intent.putExtra(MainActivity.DEEP_LINK_DATA, deepLinkData.toString());
+        startActivity(intent);
+    }
+
+    private void startMainActivity() {
+        Intent intent = new Intent(PayActivity.this, MainActivity.class);
         startActivity(intent);
     }
 
