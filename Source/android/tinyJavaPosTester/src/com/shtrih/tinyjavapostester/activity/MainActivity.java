@@ -36,7 +36,7 @@ import retrofit2.Response;
 
 public class MainActivity extends AbstractActivity {
 
-    public static final String PROTOCOL = "0";
+    public static final String PROTOCOL = "1";
     public static final String TIMEOUT = "3000";
     public static final String ORDER_RESPONSE = "order_response";
     public static final String DEEP_LINK_DATA = "deep_link_data";
