@@ -224,7 +224,7 @@ public class TransactionBody {
 
         double sumPayment = 0;
         for (OrderResponse.Serv serv : refundServiceList) {
-            sumPayment += Double.parseDouble(serv.getServCost());
+            sumPayment += Double.parseDouble(serv.getServCostD());
         }
         try {
             JSONObject jsonObject = new JSONObject();
