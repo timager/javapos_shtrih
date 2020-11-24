@@ -7,6 +7,8 @@ import com.shtrih.tinyjavapostester.activity.AbstractActivity;
 import com.shtrih.tinyjavapostester.task.listener.Listener;
 import com.shtrih.tinyjavapostester.task.message.Message;
 
+import jpos.JposException;
+
 public class PrintReceiptTask extends AbstractTask {
 
     private Receipt receipt;
@@ -31,6 +33,10 @@ public class PrintReceiptTask extends AbstractTask {
             receipt.print(printer);
             exceptionListener.handle(null);
         } catch (Exception e) {
+            try {
+                printer.resetPrinter();
+            } catch (JposException ignored) { }
+
             exceptionListener.handle(e);
         }
     }
