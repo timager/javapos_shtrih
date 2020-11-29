@@ -51,15 +51,20 @@ public class AppUtil {
     }
 
     public static double getSumRefundTransactionFromData(JSONObject deepLinkData, OrderResponse.Order order) throws JSONException {
+        return getRefundTransactionListFromData(deepLinkData, order).stream().mapToInt(item -> item.sum).sum();
+    }
+
+    public static List<TransactionHistoryItem> getRefundTransactionListFromData(JSONObject deepLinkData, OrderResponse.Order order) throws JSONException {
         List<Integer> transactionRefundIdList = AppUtil.convertToListInteger(deepLinkData.getJSONObject("operation_data").getJSONArray("transactions"));
-        double sumRefund = 0;
+        List<TransactionHistoryItem> resultList = new ArrayList<>();
+
         for (TransactionHistoryItem transactionHistoryItem : order.getPayHistory()) {
             if (transactionRefundIdList.contains(transactionHistoryItem.id)) {
-                sumRefund += transactionHistoryItem.sum;
+                resultList.add(transactionHistoryItem);
             }
         }
 
-        return sumRefund;
+        return resultList;
     }
 
     public static double getSumRefundServiceFromData(JSONObject deepLinkData, OrderResponse.Order order) throws JSONException {
@@ -185,13 +190,13 @@ public class AppUtil {
 
     public static boolean isFullSale(JSONObject deepLinkData, OrderResponse.Order order) throws JSONException {
         return isSale(deepLinkData)
-                && AppUtil.getSumSalePaymentFromDeepLink(deepLinkData) == getOrderSum(order);
+                && AppUtil.getSumSalePaymentFromDeepLink(deepLinkData) >= getOrderSum(order);
 
     }
 
     public static boolean isPartitionSale(JSONObject deepLinkData, OrderResponse.Order order) throws JSONException {
         return isSale(deepLinkData)
-                && AppUtil.getSumSalePaymentFromDeepLink(deepLinkData) != getOrderSum(order);
+                && AppUtil.getSumSalePaymentFromDeepLink(deepLinkData) < getOrderSum(order);
     }
 
     public static double getOrderSum(OrderResponse.Order order) {

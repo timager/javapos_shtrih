@@ -10,6 +10,7 @@ import com.shtrih.fiscalprinter.command.LongPrinterStatus;
 import com.shtrih.jpos.fiscalprinter.JposExceptionHandler;
 import com.shtrih.jpos.fiscalprinter.SmFptrConst;
 import com.shtrih.tinyjavapostester.network.OrderResponse;
+import com.shtrih.tinyjavapostester.network.TransactionHistoryItem;
 import com.shtrih.tinyjavapostester.util.AppUtil;
 import com.shtrih.tinyjavapostester.util.ToastUtil;
 
@@ -25,6 +26,9 @@ import jpos.JposException;
 public class Receipt {
     private final String UNIT_NAME_SALE = "Оплата";
     private final String UNIT_NAME_REFUND = "Возврат";
+
+    private final String TOTAL_SUM_TYPE_CASH = "0";
+    private final String TOTAL_SUM_TYPE_CARD = "2";
 
     private OrderResponse.Order order;
     private JSONObject deepLinkData;
@@ -119,6 +123,7 @@ public class Receipt {
         int fiscalReceiptType = deepLinkData.getJSONObject("operation_data").getInt("fiscal");
 
         double sumRefund = AppUtil.getSumRefundTransactionFromData(deepLinkData, order);
+        List<TransactionHistoryItem> refundTransactionList = AppUtil.getRefundTransactionListFromData(deepLinkData, order);
 
         printer.setFiscalReceiptType(FiscalPrinterConst.FPTR_RT_REFUND);
         printer.beginFiscalReceipt(true);
@@ -126,7 +131,7 @@ public class Receipt {
         printRefundItemsByTransaction(printer, sumRefund, UNIT_NAME_REFUND, fiscalReceiptType);
         printDiscount(printer);
         printRefundSubTotal(printer, fiscalReceiptType);
-        printRefundTotalByTransaction(printer, sumRefund);
+        printRefundTotalByTransaction(printer, refundTransactionList);
 
         ToastUtil.showMessage(R.string.print_receipt_phase_print_receipt);
         printer.endFiscalReceipt(false);
@@ -290,11 +295,11 @@ public class Receipt {
         JSONObject operationData = deepLinkData.getJSONObject("operation_data");
         long paymentCash = operationData.getInt("payment_cash") * 100;
         if (paymentCash != 0) {
-            printer.printRecTotal(paymentCash, paymentCash, "0");
+            printer.printRecTotal(paymentCash, paymentCash, TOTAL_SUM_TYPE_CASH);
         }
         long paymentCard = operationData.getInt("payment_card") * 100;
         if (paymentCard != 0) {
-            printer.printRecTotal(paymentCard, paymentCard, "2");
+            printer.printRecTotal(paymentCard, paymentCard, TOTAL_SUM_TYPE_CARD);
         }
     }
 
@@ -304,11 +309,11 @@ public class Receipt {
 
         long paymentCash = operationData.getInt("payment_cash") * 100;
         if (paymentCash != 0) {
-            printer.printRecTotal(orderSum, paymentCash, "0");
+            printer.printRecTotal(orderSum, paymentCash, TOTAL_SUM_TYPE_CASH);
         }
         long paymentCard = operationData.getInt("payment_card") * 100;
         if (paymentCard != 0) {
-            printer.printRecTotal(orderSum, paymentCard, "2");
+            printer.printRecTotal(orderSum, paymentCard, TOTAL_SUM_TYPE_CARD);
         }
     }
 
@@ -324,22 +329,22 @@ public class Receipt {
         long sumPennyPayment = (long) (sumPayment * 100);
 
         if (paymentType == 1) {
-            printer.printRecTotal(sumPennyPayment, sumPennyPayment, "0");
+            printer.printRecTotal(sumPennyPayment, sumPennyPayment, TOTAL_SUM_TYPE_CASH);
         } else if (paymentType == 2) {
-            printer.printRecTotal(sumPennyPayment, sumPennyPayment, "2");
+            printer.printRecTotal(sumPennyPayment, sumPennyPayment, TOTAL_SUM_TYPE_CARD);
         }
     }
 
-    private void printRefundTotalByTransaction(ShtrihFiscalPrinter printer, double sumRefund) throws Exception {
-        int paymentType = 1;
+    private void printRefundTotalByTransaction(ShtrihFiscalPrinter printer, List<TransactionHistoryItem> transactionHistoryItems) throws Exception {
+        long cashSumPennyRefund = transactionHistoryItems.stream().filter(it -> it.isCashPayment()).mapToLong(it -> it.sum).sum() * 100;
+        long cardSumPennyRefund = transactionHistoryItems.stream().filter(it -> it.isCardPayment()).mapToLong(it -> it.sum).sum() * 100;
 
-        // Терминал принимает сумму в копейках
-        long sumPennyPayment = (long) (sumRefund * 100);
+        if (cashSumPennyRefund != 0) {
+            printer.printRecTotal(cashSumPennyRefund, cashSumPennyRefund, TOTAL_SUM_TYPE_CASH);
+        }
 
-        if (paymentType == 1) {
-            printer.printRecTotal(sumPennyPayment, sumPennyPayment, "0");
-        } else if (paymentType == 2) {
-            printer.printRecTotal(sumPennyPayment, sumPennyPayment, "2");
+        if (cardSumPennyRefund != 0) {
+            printer.printRecTotal(cardSumPennyRefund, cardSumPennyRefund, TOTAL_SUM_TYPE_CARD);
         }
     }
 
@@ -354,7 +359,7 @@ public class Receipt {
 
         printer.printRecRefund(reason, sumPennyPayment, 0);
         printDiscount(printer);
-        printer.printRecTotal(sumPennyPayment, sumPennyPayment, "0");
+        printer.printRecTotal(sumPennyPayment, sumPennyPayment, TOTAL_SUM_TYPE_CASH);
     }
 
     private void prepare(ShtrihFiscalPrinter printer) throws JposException {

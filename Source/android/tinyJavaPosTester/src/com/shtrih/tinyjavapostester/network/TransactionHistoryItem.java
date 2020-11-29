@@ -45,4 +45,12 @@ public class TransactionHistoryItem implements Serializable {
     @SerializedName("HST_Name")
     @Expose
     public String hst_Name;
+
+    public boolean isCashPayment() {
+        return payType == 1;
+    }
+
+    public boolean isCardPayment() {
+        return payType == 2;
+    }
 }
