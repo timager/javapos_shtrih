@@ -158,6 +158,12 @@ public class Receipt {
         int subjectTypeId = 10;
 
         for (OrderResponse.Serv serv : items) {
+            if (serv.getPaymentTypeSign() != null) {
+                paymentTypeId = serv.getPaymentTypeSign();
+            } else {
+                paymentTypeId = 1;
+            }
+
             long price = Long.parseLong(serv.getServCost().replace(".", "")) / 100;
             long priceDiscount = Long.parseLong(serv.getServCostD().replace(".", "")) / 100;
             long discount = price - priceDiscount;
@@ -183,6 +189,12 @@ public class Receipt {
         for (int i = 0; i < items.size(); i++) {
             OrderResponse.Serv serv = items.get(i);
             Pair<Long, Long> printPriceWithDiscount = printPriceWithDiscountPennyList.get(i);
+
+            if (serv.getPaymentTypeSign() != null) {
+                paymentTypeId = serv.getPaymentTypeSign();
+            } else {
+                paymentTypeId = 2;
+            }
 
             int taxType = serv.getServTax();
 

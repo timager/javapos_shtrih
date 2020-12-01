@@ -1,13 +1,13 @@
 package com.shtrih.tinyjavapostester.task;
 
 import com.shtrih.fiscalprinter.ShtrihFiscalPrinter;
+import com.shtrih.fiscalprinter.command.FSDocType;
+import com.shtrih.fiscalprinter.command.FSStatusInfo;
 import com.shtrih.tinyjavapostester.MainViewModel;
 import com.shtrih.tinyjavapostester.Receipt;
 import com.shtrih.tinyjavapostester.activity.AbstractActivity;
 import com.shtrih.tinyjavapostester.task.listener.Listener;
 import com.shtrih.tinyjavapostester.task.message.Message;
-
-import jpos.JposException;
 
 public class PrintReceiptTask extends AbstractTask {
 
@@ -33,12 +33,23 @@ public class PrintReceiptTask extends AbstractTask {
             receipt.print(printer);
             exceptionListener.handle(null);
         } catch (Exception e) {
-            try {
-                printer.resetPrinter();
-            } catch (JposException ignored) { }
+            resetReceipt(printer);
 
             exceptionListener.handle(e);
         }
+    }
+
+    private void resetReceipt(ShtrihFiscalPrinter printer) {
+        try {
+            FSStatusInfo fsStatus = printer.fsReadStatus();
+
+            if (fsStatus.getDocType().getValue() != FSDocType.FS_DOCTYPE_NONE) {
+                printer.fsCancelDocument();
+            }
+
+            printer.resetPrinter();
+
+        } catch (Exception ignored) { }
     }
 
     @Override

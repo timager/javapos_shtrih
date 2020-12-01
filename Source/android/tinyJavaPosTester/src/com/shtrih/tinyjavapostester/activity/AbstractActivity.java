@@ -92,7 +92,7 @@ public abstract class AbstractActivity extends AppCompatActivity {
                         address,
                         createFirmwareUpdateObserver(),
                         TIMEOUT,
-                        false,
+                        true,
                         false,
                         model).execute();
             }
@@ -133,7 +133,7 @@ public abstract class AbstractActivity extends AppCompatActivity {
                             address,
                             createFirmwareUpdateObserver(),
                             TIMEOUT,
-                            false,
+                            true,
                             false,
                             model).execute();
                 } else {

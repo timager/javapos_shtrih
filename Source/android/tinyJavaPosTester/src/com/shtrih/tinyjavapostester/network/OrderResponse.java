@@ -307,6 +307,9 @@ public class OrderResponse implements Serializable {
         @SerializedName("priority_id")
         @Expose
         private Integer priorityId;
+        @SerializedName("PaymentTypeSign")
+        @Expose
+        private Integer paymentTypeSign;
 
         public Integer getServId() {
             return servId;
@@ -404,5 +407,12 @@ public class OrderResponse implements Serializable {
             this.priorityId = priorityId;
         }
 
+        public Integer getPaymentTypeSign() {
+            return paymentTypeSign;
+        }
+
+        public void setPaymentTypeSign(Integer paymentTypeSign) {
+            this.paymentTypeSign = paymentTypeSign;
+        }
     }
 }
