@@ -348,8 +348,8 @@ public class Receipt {
     }
 
     private void printRefundTotalByTransaction(ShtrihFiscalPrinter printer, List<TransactionHistoryItem> transactionHistoryItems) throws Exception {
-        long cashSumPennyRefund = transactionHistoryItems.stream().filter(it -> it.isCashPayment()).mapToLong(it -> it.sum).sum() * 100;
-        long cardSumPennyRefund = transactionHistoryItems.stream().filter(it -> it.isCardPayment()).mapToLong(it -> it.sum).sum() * 100;
+        long cashSumPennyRefund = transactionHistoryItems.stream().filter(it -> it.isCashPayment()).mapToLong(it -> it.getSumWithoutChange()).sum() * 100;
+        long cardSumPennyRefund = transactionHistoryItems.stream().filter(it -> it.isCardPayment()).mapToLong(it -> it.getSumWithoutChange()).sum() * 100;
 
         if (cashSumPennyRefund != 0) {
             printer.printRecTotal(cashSumPennyRefund, cashSumPennyRefund, TOTAL_SUM_TYPE_CASH);

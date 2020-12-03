@@ -18,6 +18,7 @@ public class TransactionHistoryItem implements Serializable {
     @SerializedName("Pay_Type")
     @Expose
     public Integer payType;
+    // Сумма транзакции со сдачей (в рублях)
     @SerializedName("Summ")
     @Expose
     public Integer sum;
@@ -45,6 +46,10 @@ public class TransactionHistoryItem implements Serializable {
     @SerializedName("HST_Name")
     @Expose
     public String hst_Name;
+    // Сдача (в рублях)
+    @SerializedName("Change")
+    @Expose
+    public Integer change;
 
     public boolean isCashPayment() {
         return payType == 1;
@@ -52,5 +57,14 @@ public class TransactionHistoryItem implements Serializable {
 
     public boolean isCardPayment() {
         return payType == 2;
+    }
+
+    // Сумма транзакции без сдачи
+    public Integer getSumWithoutChange() {
+        if (change != null) {
+            return sum - change;
+        } else {
+            return sum;
+        }
     }
 }
