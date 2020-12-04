@@ -52,7 +52,7 @@ public class Receipt {
         ToastUtil.showMessage(R.string.print_receipt_phase_prepare_printer);
         prepare(printer);
         printer.setFontNumber(1);
-        printReceiptHeader(printer);
+        //printReceiptHeader(printer);
 
         ToastUtil.showMessage(R.string.print_receipt_phase_send_data_to_printer);
         if (AppUtil.isFullSale(deepLinkData, order)) {
