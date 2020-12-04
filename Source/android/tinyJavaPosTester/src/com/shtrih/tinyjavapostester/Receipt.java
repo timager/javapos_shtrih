@@ -39,20 +39,24 @@ public class Receipt {
     }
 
     private void printReceiptHeader(ShtrihFiscalPrinter printer) throws JposException {
-        printer.setNumHeaderLines(6);
-        printer.setHeaderLine(1, "* " + "ФБУН ЦНИИ ЭПИДЕМИОЛОГИИ", false);
-        printer.setHeaderLine(2, "* " + "РОСПОТРЕБНАДЗОРА", false);
-        printer.setHeaderLine(3, "* " + "г. Москва", false);
-        printer.setHeaderLine(4, "* " + "ул. Новогиреевская, д. 3А", false);
-        printer.setHeaderLine(5, "Заказ № " + order.getOrderNumber(), false);
-        printer.setHeaderLine(6, "----------------------------", false);
+//        printer.setNumHeaderLines(6);
+//        printer.setHeaderLine(1, "* " + "ФБУН ЦНИИ ЭПИДЕМИОЛОГИИ", false);
+//        printer.setHeaderLine(2, "* " + "РОСПОТРЕБНАДЗОРА", false);
+//        printer.setHeaderLine(3, "* " + "г. Москва", false);
+//        printer.setHeaderLine(4, "* " + "ул. Новогиреевская, д. 3А", false);
+//        printer.setHeaderLine(5, "Заказ № " + order.getOrderNumber(), false);
+//        printer.setHeaderLine(6, "----------------------------", false);
+
+        printer.setNumHeaderLines(2);
+        printer.setHeaderLine(1, "Заказ № " + order.getOrderNumber(), false);
+        printer.setHeaderLine(2, "----------------------------", false);
     }
 
     public void print(ShtrihFiscalPrinter printer) throws Exception {
         ToastUtil.showMessage(R.string.print_receipt_phase_prepare_printer);
         prepare(printer);
         printer.setFontNumber(1);
-        //printReceiptHeader(printer);
+        printReceiptHeader(printer);
 
         ToastUtil.showMessage(R.string.print_receipt_phase_send_data_to_printer);
         if (AppUtil.isFullSale(deepLinkData, order)) {
