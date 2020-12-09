@@ -51,7 +51,7 @@ public class AppUtil {
     }
 
     public static double getSumRefundTransactionFromData(JSONObject deepLinkData, OrderResponse.Order order) throws JSONException {
-        return getRefundTransactionListFromData(deepLinkData, order).stream().mapToInt(item -> item.sum).sum();
+        return getRefundTransactionListFromData(deepLinkData, order).stream().mapToInt(item -> item.getSumWithoutChange()).sum();
     }
 
     public static List<TransactionHistoryItem> getRefundTransactionListFromData(JSONObject deepLinkData, OrderResponse.Order order) throws JSONException {
