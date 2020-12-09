@@ -189,14 +189,14 @@ public class AppUtil {
     }
 
     public static boolean isFullSale(JSONObject deepLinkData, OrderResponse.Order order) throws JSONException {
-        return isSale(deepLinkData)
+        return isSale(deepLinkData) && order.getOrderAdvanced() == 0
                 && AppUtil.getSumSalePaymentFromDeepLink(deepLinkData) >= getOrderSum(order);
 
     }
 
     public static boolean isPartitionSale(JSONObject deepLinkData, OrderResponse.Order order) throws JSONException {
-        return isSale(deepLinkData)
-                && AppUtil.getSumSalePaymentFromDeepLink(deepLinkData) < getOrderSum(order);
+        return (isSale(deepLinkData) && order.getOrderAdvanced() != 0) ||
+                (isSale(deepLinkData) && AppUtil.getSumSalePaymentFromDeepLink(deepLinkData) < getOrderSum(order));
     }
 
     public static double getOrderSum(OrderResponse.Order order) {

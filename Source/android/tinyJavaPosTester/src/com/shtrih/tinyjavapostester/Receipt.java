@@ -87,11 +87,16 @@ public class Receipt {
 
     private void printPartitionSales(ShtrihFiscalPrinter printer) throws Exception {
         double deepLinkSum = AppUtil.getSumSalePaymentFromDeepLink(deepLinkData);
+        double remainSum = order.getOrderAmountWithBenefits() - order.getOrderAdvanced();
 
         printer.setFiscalReceiptType(FiscalPrinterConst.FPTR_RT_SALES);
         printer.beginFiscalReceipt(true);
         writeTags(printer);
-        printPartitionSaleItems(printer, deepLinkSum, order.getServs(), UNIT_NAME_SALE);
+        if (remainSum < deepLinkSum) {
+            printPartitionSaleItems(printer, remainSum, order.getServs(), UNIT_NAME_SALE);
+        } else {
+            printPartitionSaleItems(printer, deepLinkSum, order.getServs(), UNIT_NAME_SALE);
+        }
         printDiscount(printer);
         printPartitionSaleSubTotal(printer);
         printPartitionSaleTotal(printer);
@@ -325,11 +330,11 @@ public class Receipt {
 
         long paymentCash = operationData.getInt("payment_cash") * 100;
         if (paymentCash != 0) {
-            printer.printRecTotal(orderSum, paymentCash, TOTAL_SUM_TYPE_CASH);
+            printer.printRecTotal(paymentCash, paymentCash, TOTAL_SUM_TYPE_CASH);
         }
         long paymentCard = operationData.getInt("payment_card") * 100;
         if (paymentCard != 0) {
-            printer.printRecTotal(orderSum, paymentCard, TOTAL_SUM_TYPE_CARD);
+            printer.printRecTotal(paymentCard, paymentCard, TOTAL_SUM_TYPE_CARD);
         }
     }
 

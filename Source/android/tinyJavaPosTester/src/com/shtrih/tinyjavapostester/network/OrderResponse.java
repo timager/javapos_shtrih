@@ -1,7 +1,5 @@
 package com.shtrih.tinyjavapostester.network;
 
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -265,6 +263,10 @@ public class OrderResponse implements Serializable {
 
         public void setPayHistory(List<TransactionHistoryItem> payHistory) {
             this.payHistory = payHistory;
+        }
+
+        public double getRemainSum() {
+            return getOrderAmountWithBenefits() - getOrderAdvanced();
         }
 
     }
