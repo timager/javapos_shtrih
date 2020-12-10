@@ -2,12 +2,16 @@ package com.shtrih.tinyjavapostester.task;
 
 import com.shtrih.fiscalprinter.ShtrihFiscalPrinter;
 import com.shtrih.fiscalprinter.command.FSDocType;
+import com.shtrih.fiscalprinter.command.FSDocumentReceipt;
 import com.shtrih.fiscalprinter.command.FSStatusInfo;
 import com.shtrih.tinyjavapostester.MainViewModel;
 import com.shtrih.tinyjavapostester.Receipt;
 import com.shtrih.tinyjavapostester.activity.AbstractActivity;
 import com.shtrih.tinyjavapostester.task.listener.Listener;
 import com.shtrih.tinyjavapostester.task.message.Message;
+import com.shtrih.tinyjavapostester.util.AppUtil;
+
+import jpos.JposException;
 
 public class PrintReceiptTask extends AbstractTask {
 
@@ -29,25 +33,32 @@ public class PrintReceiptTask extends AbstractTask {
 
     @Override
     protected void exec(ShtrihFiscalPrinter printer) {
+        long expectedDocNumber = -1;
+
         try {
+            expectedDocNumber = printer.fsReadStatus().getDocNumber() + 1;
+
             receipt.print(printer);
             exceptionListener.handle(null);
         } catch (Exception e) {
-            resetReceipt(printer);
+            resetReceipt(printer, expectedDocNumber);
 
             exceptionListener.handle(e);
         }
     }
 
-    private void resetReceipt(ShtrihFiscalPrinter printer) {
+    private void resetReceipt(ShtrihFiscalPrinter printer, long expectedDocNumber) {
         try {
-            FSStatusInfo fsStatus = printer.fsReadStatus();
+            FSDocumentReceipt fsReceipt = AppUtil.getFSDocumentReceipt(printer, expectedDocNumber);
+            if (fsReceipt == null) {
+                printer.resetPrinter();
+            }  else {
+                FSStatusInfo fsStatus = printer.fsReadStatus();
 
-            if (fsStatus.getDocType().getValue() != FSDocType.FS_DOCTYPE_NONE) {
-                printer.fsCancelDocument();
+                if (fsStatus.getDocType().getValue() != FSDocType.FS_DOCTYPE_NONE) {
+                    printer.fsCancelDocument();
+                }
             }
-
-            printer.resetPrinter();
 
         } catch (Exception ignored) { }
     }

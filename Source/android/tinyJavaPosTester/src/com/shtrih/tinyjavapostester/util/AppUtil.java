@@ -2,6 +2,9 @@ package com.shtrih.tinyjavapostester.util;
 
 import android.util.Pair;
 
+import com.shtrih.fiscalprinter.ShtrihFiscalPrinter;
+import com.shtrih.fiscalprinter.command.FSDocumentReceipt;
+import com.shtrih.fiscalprinter.command.FSFindDocument;
 import com.shtrih.tinyjavapostester.network.OrderResponse;
 import com.shtrih.tinyjavapostester.network.TransactionHistoryItem;
 
@@ -14,6 +17,8 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import jpos.JposException;
 
 public class AppUtil {
     public static List<Integer> convertToListInteger(JSONArray array) throws JSONException {
@@ -280,5 +285,15 @@ public class AppUtil {
         }
 
         return null;
+    }
+
+    public static FSDocumentReceipt getFSDocumentReceipt(ShtrihFiscalPrinter printer, long receiptDocNumber) {
+        try {
+            FSFindDocument command = new FSFindDocument(printer.getSysPassword(), receiptDocNumber);
+            printer.fsFindDocument(command);
+            return (FSDocumentReceipt) command.getDocument();
+        } catch (JposException e) {
+            return null;
+        }
     }
 }
