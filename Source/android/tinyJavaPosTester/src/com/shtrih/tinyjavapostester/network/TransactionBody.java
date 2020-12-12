@@ -290,7 +290,7 @@ public class TransactionBody {
         double sumRefund = 0;
         for (TransactionHistoryItem transactionHistoryItem : order.getPayHistory()) {
             if (transactionRefundIdList.contains(transactionHistoryItem.id)) {
-                sumRefund += transactionHistoryItem.sum;
+                sumRefund += transactionHistoryItem.getSumWithoutChange();
             }
         }
 
