@@ -17,6 +17,7 @@ public class PrintReceiptTask extends AbstractTask {
 
     private Receipt receipt;
     private Listener<Exception> exceptionListener;
+    private Boolean repeatPrint = false;
 
 
     public PrintReceiptTask(AbstractActivity parent, MainViewModel model, Receipt receipt, Listener<Exception> exceptionListener) {
@@ -39,29 +40,43 @@ public class PrintReceiptTask extends AbstractTask {
             expectedDocNumber = printer.fsReadStatus().getDocNumber() + 1;
 
             receipt.print(printer);
+
+            repeatPrint = false;
+
             exceptionListener.handle(null);
         } catch (Exception e) {
-            resetReceipt(printer, expectedDocNumber);
-
             exceptionListener.handle(e);
+
+            if (AppUtil.getFSDocumentReceipt(printer, expectedDocNumber) != null) {
+                try {
+                    printer.printDuplicateReceipt();
+                } catch (JposException e1) {
+                    exceptionListener.handle(e1);
+                }
+            } else {
+                if (!repeatPrint) {
+                    repeatPrint = true;
+                    exec(printer);
+                }
+            }
         }
     }
 
-    private void resetReceipt(ShtrihFiscalPrinter printer, long expectedDocNumber) {
-        try {
-            FSDocumentReceipt fsReceipt = AppUtil.getFSDocumentReceipt(printer, expectedDocNumber);
-            if (fsReceipt == null) {
-                printer.resetPrinter();
-            }  else {
-                FSStatusInfo fsStatus = printer.fsReadStatus();
-
-                if (fsStatus.getDocType().getValue() != FSDocType.FS_DOCTYPE_NONE) {
-                    printer.fsCancelDocument();
-                }
-            }
-
-        } catch (Exception ignored) { }
-    }
+//    private void resetReceipt(ShtrihFiscalPrinter printer, long expectedDocNumber) {
+//        try {
+//            FSDocumentReceipt fsReceipt = AppUtil.getFSDocumentReceipt(printer, expectedDocNumber);
+//            if (fsReceipt == null) {
+//                printer.resetPrinter();
+//            }  else {
+//                FSStatusInfo fsStatus = printer.fsReadStatus();
+//
+//                if (fsStatus.getDocType().getValue() != FSDocType.FS_DOCTYPE_NONE) {
+//                    printer.fsCancelDocument();
+//                }
+//            }
+//
+//        } catch (Exception ignored) { }
+//    }
 
     @Override
     protected void postExec() {
