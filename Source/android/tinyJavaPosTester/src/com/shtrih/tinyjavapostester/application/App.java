@@ -2,9 +2,11 @@ package com.shtrih.tinyjavapostester.application;
 
 import android.app.Application;
 import android.content.SharedPreferences;
+import android.os.Environment;
 
 import com.shtrih.tinyjavapostester.shar_pref.AppConst;
 import com.shtrih.tinyjavapostester.shar_pref.SharedPreferenceKey;
+import com.shtrih.tinyjavapostester.util.LogbackConfig;
 import com.shtrih.tinyjavapostester.util.ToastUtil;
 
 public class App extends Application {
@@ -16,6 +18,10 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         app = this;
+
+//        LogbackConfig.configure(this.getExternalCacheDir().getAbsolutePath());
+        String logDirectory = Environment.getExternalStorageDirectory().getAbsolutePath() + "/tinyJavaPosTester";
+        LogbackConfig.configure(logDirectory) ;
 
         ToastUtil.init(this);
     }
