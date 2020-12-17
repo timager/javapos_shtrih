@@ -9,11 +9,11 @@ import com.shtrih.jpos.fiscalprinter.FirmwareUpdateObserver;
 import com.shtrih.jpos.fiscalprinter.SmFptrConst;
 import com.shtrih.tinyjavapostester.JposConfig;
 import com.shtrih.tinyjavapostester.activity.AbstractActivity;
-import com.shtrih.tinyjavapostester.activity.MainActivity;
 import com.shtrih.tinyjavapostester.MainViewModel;
 
 import java.util.HashMap;
 import jpos.JposConst;
+import jpos.JposException;
 
 import static com.shtrih.tinyjavapostester.activity.MainActivity.PROTOCOL;
 
@@ -83,7 +83,11 @@ public class ConnectToBluetoothDeviceTask extends AsyncTask<Void, Void, String> 
 
         } catch (Exception e) {
             e.printStackTrace();
-            return e.getMessage();
+            if (e instanceof JposException) {
+                return "Ошибка подключения";
+            } else {
+                return e.getMessage();
+            }
         } finally {
             doneAt = System.currentTimeMillis();
         }

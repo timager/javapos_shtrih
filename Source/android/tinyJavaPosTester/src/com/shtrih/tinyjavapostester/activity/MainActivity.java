@@ -89,8 +89,7 @@ public class MainActivity extends AbstractActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_connect_ptk) {
-            Intent i = new Intent(this, DeviceListActivity.class);
-            startActivityForResult(i, DeviceListActivity.REQUEST_CONNECT_BT_DEVICE);
+            openDeviceListActivity();
             return true;
         }
         return super.onOptionsItemSelected(item);

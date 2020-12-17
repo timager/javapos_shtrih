@@ -16,11 +16,10 @@ import com.shtrih.tinyjavapostester.MainViewModel;
 import com.shtrih.tinyjavapostester.application.App;
 import com.shtrih.tinyjavapostester.databinding.ActivityMainBinding;
 import com.shtrih.tinyjavapostester.search.tcp.TcpDeviceSearchActivity;
-import com.shtrih.tinyjavapostester.shar_pref.SharedPreferenceKey;
-import com.shtrih.tinyjavapostester.task.AutoConnectBluetoothDeviceTask;
 import com.shtrih.tinyjavapostester.task.CheckDayOpenedTask;
 import com.shtrih.tinyjavapostester.task.ConnectToBluetoothDeviceTask;
 import com.shtrih.tinyjavapostester.task.listener.Listener;
+import com.shtrih.tinyjavapostester.util.AlertUtil;
 
 import jpos.JposException;
 
@@ -30,11 +29,15 @@ public abstract class AbstractActivity extends AppCompatActivity {
     protected MainViewModel model;
     protected String address;
 
+    private int countAttempt = 0;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        address = getApp().getApplicationSharPref().getString(SharedPreferenceKey.ADDRESS, null);
+
+        clearAttemptConnect();
+
+        address = App.getLastTerminalAddress();
         ActivityMainBinding binding = DataBindingUtil.setContentView(this, chooseLayout());
         model = ViewModelProviders.of(this).get(MainViewModel.class);
         binding.setVm(model);
@@ -68,25 +71,40 @@ public abstract class AbstractActivity extends AppCompatActivity {
         }
     }
 
-    protected void autoConnectBluetoothDevice() {
-
-        new AutoConnectBluetoothDeviceTask(
-                this,
-                address,
-                createFirmwareUpdateObserver(),
-                TIMEOUT,
-                true,
-                false,
-                model).execute();
-    }
+//    protected void autoConnectBluetoothDevice() {
+//
+//        new AutoConnectBluetoothDeviceTask(
+//                this,
+//                address,
+//                createFirmwareUpdateObserver(),
+//                TIMEOUT,
+//                true,
+//                false,
+//                model).execute();
+//    }
 
     public void toConnect(String address) {
         boolean isEnabled = checkEnabled();
         if (!isEnabled) {
-            if(this.address == null){
-                Intent i = new Intent(this, DeviceListActivity.class);
-                startActivityForResult(i, DeviceListActivity.REQUEST_CONNECT_BT_DEVICE);
+            if(address == null){
+                openDeviceListActivity();
             }else{
+                countAttempt++;
+
+                // Даеться 5 попыток подключения
+                if (countAttempt >= 6) {
+                    AlertUtil.showAlertOk(
+                            this,
+                            null,
+                            "Касса недоступна: аппарат выключен, либо нет сопряжения с устройством",
+                            (dialog, which) -> {
+                                App.setLastTerminalAddress(null);
+                                openDeviceListActivity();
+                            }
+                    );
+                    return;
+                }
+
                 new ConnectToBluetoothDeviceTask(
                         this,
                         address,
@@ -98,9 +116,14 @@ public abstract class AbstractActivity extends AppCompatActivity {
             }
         } else {
             this.address = address;
-            getApp().getApplicationSharPref().edit().putString(SharedPreferenceKey.ADDRESS, address).apply();
+            App.setLastTerminalAddress(address);
             useDayOpened();
         }
+    }
+
+    protected void openDeviceListActivity() {
+        Intent i = new Intent(this, DeviceListActivity.class);
+        startActivityForResult(i, DeviceListActivity.REQUEST_CONNECT_BT_DEVICE);
     }
 
     protected boolean checkEnabled() {
@@ -110,7 +133,6 @@ public abstract class AbstractActivity extends AppCompatActivity {
             return false;
         }
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -128,15 +150,8 @@ public abstract class AbstractActivity extends AppCompatActivity {
                     if (address == null)
                         return;
 
-                    new ConnectToBluetoothDeviceTask(
-                            this,
-                            address,
-                            createFirmwareUpdateObserver(),
-                            TIMEOUT,
-                            false,
-                            false,
-                            model).execute();
-                } else {
+                    clearAttemptConnect();
+
                     toConnect(address);
                 }
             case TcpDeviceSearchActivity.REQUEST_SEARCH_TCP_DEVICE:
@@ -157,6 +172,10 @@ public abstract class AbstractActivity extends AppCompatActivity {
                 super.onActivityResult(requestCode, resultCode, data);
         }
 
+    }
+
+    protected void clearAttemptConnect() {
+        countAttempt = 0;
     }
 
     protected FirmwareUpdateObserver createFirmwareUpdateObserver() {

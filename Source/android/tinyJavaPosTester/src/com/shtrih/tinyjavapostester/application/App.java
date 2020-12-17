@@ -39,4 +39,14 @@ public class App extends Application {
     public static String getCashierName() {
         return app.getApplicationSharPref().getString(SharedPreferenceKey.CASHIER_NAME, AppConst.DEFAULT_CASHIER_NAME);
     }
+
+    public static String getLastTerminalAddress() {
+        return app.getApplicationSharPref().getString(SharedPreferenceKey.ADDRESS, null);
+    }
+
+    public static void setLastTerminalAddress(String address) {
+        app.getApplicationSharPref().edit()
+                .putString(SharedPreferenceKey.ADDRESS, address)
+                .apply();
+    }
 }
