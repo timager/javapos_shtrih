@@ -66,6 +66,8 @@ public class ConnectToBluetoothDeviceTask extends AsyncTask<Void, Void, String> 
             props.put("portClass", "com.shtrih.fiscalprinter.port.BluetoothPort");
             props.put("protocolType", PROTOCOL);
             props.put("fastConnect", fastConnect ? "1" : "0");
+            props.put("textReportEnabled", "1");
+            props.put("headerMode", "1");
             props.put("capScocUpdateFirmware", scocFirmwareAutoupdate ? "1" : "0");
             props.put("byteTimeout", timeout);
 

@@ -47,9 +47,11 @@ public class Receipt {
 //        printer.setHeaderLine(5, "Заказ № " + order.getOrderNumber(), false);
 //        printer.setHeaderLine(6, "----------------------------", false);
 
-        printer.setNumHeaderLines(2);
-        printer.setHeaderLine(1, "Заказ № " + order.getOrderNumber(), false);
-        printer.setHeaderLine(2, "----------------------------", false);
+//        printer.setNumHeaderLines(2);
+//        printer.setHeaderLine(1, "Заказ № " + order.getOrderNumber(), false);
+//        printer.setHeaderLine(2, "----------------------------", false);
+
+        printer.setAdditionalHeader("Заказ № " + order.getOrderNumber() + "\n----------------------------");
     }
 
     public void print(ShtrihFiscalPrinter printer) throws Exception {
@@ -82,7 +84,7 @@ public class Receipt {
         printFullSaleTotal(printer);
 
         ToastUtil.showMessage(R.string.print_receipt_phase_print_receipt);
-        printer.endFiscalReceipt(false);
+        printer.endFiscalReceipt(true);
     }
 
     private void printPartitionSales(ShtrihFiscalPrinter printer) throws Exception {
@@ -102,7 +104,7 @@ public class Receipt {
         printPartitionSaleTotal(printer);
 
         ToastUtil.showMessage(R.string.print_receipt_phase_print_receipt);
-        printer.endFiscalReceipt(false);
+        printer.endFiscalReceipt(true);
     }
 
     private void printRefundService(ShtrihFiscalPrinter printer) throws Exception {
@@ -125,7 +127,7 @@ public class Receipt {
         printRefundTotal(printer, refundServiceList);
 
         ToastUtil.showMessage(R.string.print_receipt_phase_print_receipt);
-        printer.endFiscalReceipt(false);
+        printer.endFiscalReceipt(true);
     }
 
     private void printRefundTransaction(ShtrihFiscalPrinter printer) throws Exception {
@@ -143,7 +145,7 @@ public class Receipt {
         printRefundTotalByTransaction(printer, refundTransactionList);
 
         ToastUtil.showMessage(R.string.print_receipt_phase_print_receipt);
-        printer.endFiscalReceipt(false);
+        printer.endFiscalReceipt(true);
     }
 
     private void printRefundByReason(ShtrihFiscalPrinter printer) throws Exception {
@@ -155,7 +157,7 @@ public class Receipt {
         printRefundTotalByReason(printer, fiscalReceiptType);
 
         ToastUtil.showMessage(R.string.print_receipt_phase_print_receipt);
-        printer.endFiscalReceipt(false);
+        printer.endFiscalReceipt(true);
     }
 
     private void writeTags(ShtrihFiscalPrinter printer) throws Exception {
